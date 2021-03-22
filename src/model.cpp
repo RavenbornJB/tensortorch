@@ -8,6 +8,8 @@
 Model::Model(std::vector<size_t> &layer_dims) {
     this->L = layer_dims.size();
     this->layer_dims = layer_dims;
+
+
 }
 
 void Model::print_layers() {

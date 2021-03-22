@@ -13,8 +13,6 @@ class Model {
 private:
     size_t L;
     std::vector<size_t> layer_dims;
-    std::vector<std::vector<std::vector<double>>> W;  // Outside vector over layers, vector of vector inside for matrix.
-    std::vector<std::vector<double>> b;
 
 public:
     explicit Model(std::vector<size_t> &layer_dims);
