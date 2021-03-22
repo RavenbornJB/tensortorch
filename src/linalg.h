@@ -16,8 +16,6 @@ public:
 
     Matrix<T> &operator=(const Matrix<T> &e2);
 
-    Matrix<T> transpose();
-
     Matrix<T> operator+(const T &e2);
 
     Matrix<T> operator*(const T &e2);
@@ -32,6 +30,7 @@ public:
 
     const T &operator()(const size_t &row, const size_t &col) const;
 };
+
 
 #include "linalg.cpp"
 

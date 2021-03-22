@@ -71,7 +71,7 @@ size_t Matrix<T>::get_cols() const {
 
 
 template<typename T>
-T& Matrix<T>::operator()(const size_t& row, const size_t& col) {
+T &Matrix<T>::operator()(const size_t &row, const size_t &col) {
     return data[row][col];
 }
 
@@ -96,16 +96,18 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T> &e2) {
 }
 
 template<typename T>
-Matrix<T> Matrix<T>::transpose() {
-    Matrix<T> res(rows, cols, 0.0);
+Matrix<T> transpose(Matrix<T> &m) {
+    size_t row_num = m.get_rows();
+    size_t col_num = m.get_cols();
 
-    for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; i < cols; j++) {
-            res(i, j) += data[j][i];
+    Matrix<T> res(row_num, col_num, 0.0);
+
+    for (size_t i = 0; i < row_num; i++) {
+        for (size_t j = 0; j < col_num; j++) {
+            res(i, j) += m(j, i);
         }
     }
     return res;
 }
 
 #endif
-

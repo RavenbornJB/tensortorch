@@ -15,15 +15,9 @@ void printm(Matrix<T> a) {
 
 int main() {
     Matrix<int> a(2, 2, 1);
-    Matrix<int> b(2, 2, 2);
-
     a(0, 1) = 0;
     printm(a);
+    printm(transpose(a));
 
-    a = a + 1;
-    printm(a);
-
-    a = a*3;
-    printm(a);
     return 0;
 }
