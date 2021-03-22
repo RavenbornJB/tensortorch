@@ -5,7 +5,7 @@
 #include "linalg.h"
 
 template<typename T>
-Matrix<T>::Matrix(unsigned int rows_num, unsigned int cols_num, const T &_initial_val) {
+Matrix<T>::Matrix(size_t rows_num, size_t cols_num, const T &_initial_val) {
     data.resize(rows_num);
     for (auto &r: data) { r.resize(cols_num, _initial_val); }
     rows = rows_num;
@@ -69,18 +69,14 @@ size_t Matrix<T>::get_cols() const {
     return cols;
 }
 
-template<typename T>
-T Matrix<T>::get(size_t i, size_t j) const {
-    return data[i][j];
-}
 
 template<typename T>
-T& Matrix<T>::operator()(const unsigned& row, const unsigned& col) {
+T& Matrix<T>::operator()(const size_t& row, const size_t& col) {
     return data[row][col];
 }
 
 template<typename T>
-const T &Matrix<T>::operator()(const unsigned &row, const unsigned &col) const {
+const T &Matrix<T>::operator()(const size_t &row, const size_t &col) const {
     return data[row][col];
 }
 
@@ -110,8 +106,6 @@ Matrix<T> Matrix<T>::transpose() {
     }
     return res;
 }
-
-
 
 #endif
 
