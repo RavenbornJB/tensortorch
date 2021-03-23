@@ -24,6 +24,8 @@ public:
     Matrix<T> operator*(const T &e2);
 
     // matrix|matrix operations
+    Matrix<T> operator+(const Matrix<T> &e2);
+
     Matrix<T> operator*(const Matrix<T> &e2);
 
     // access operators

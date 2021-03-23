@@ -114,6 +114,23 @@ void Matrix<T>::print() {
     }
 }
 
+template<typename T>
+Matrix<T> Matrix<T>::operator+(const Matrix<T> &m2) {
+//    when we adding two matrices smaller have to be rhs
+    Matrix<T> res(this->get_rows(), this->get_rows(), 0.0);
+
+    size_t m2_rows = m2.get_rows();
+    size_t m2_cols = m2.get_cols();
+
+    for (size_t i = 0; i < this->get_rows(); i++) {
+        for (size_t j = 0; j < this->get_cols(); j++) {
+            res(i, j) += data[i][j] + m2(i % m2_rows, j % m2_cols);
+        }
+    }
+
+    return res;
+}
+
 
 template<typename T>
 Matrix<T> transpose(Matrix<T> &m) {
