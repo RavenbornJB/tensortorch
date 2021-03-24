@@ -6,17 +6,20 @@
 #define NN_PROJECT_MODEL_H
 
 #include <iostream>
-#include <vector>
+#include <layer.h>
+#include <linalg.h>
 
+typedef std::vector<std::pair<size_t, std::string>> def_layers_vector;
 
 class Model {
 private:
+    std::vector<Layer> layers;
     size_t L;
-    std::vector<size_t> layer_dims;
+    double learning_rate;
 
 public:
-    explicit Model(std::vector<size_t> &layer_dims);
-    void print_layers();
+    explicit Model(size_t num_input, const def_layers_vector &layer_parameters, double learning_rate);
+    void print_layers() const;
 };
 
 

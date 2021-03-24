@@ -19,6 +19,7 @@ Layer::Layer(const std::string& activation_type, size_t from_size, size_t to_siz
         }
     }
 
+    // TODO add softmax...
     if (activation_type == "sigmoid") {
         activation = Layer::sigmoid;
         activation_backward = Layer::sigmoid_backward;
