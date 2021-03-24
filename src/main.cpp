@@ -1,15 +1,9 @@
 #include <iostream>
-#include "linalg.h"
 
-template<typename T>
-void printm(Matrix<T> m) {
-    for (int i = 0; i < m.get_rows(); i++) {
-        for (int j = 0; j < m.get_cols(); j++) {
-            std::cout << m(i, j) << " ";
-        }
-        std::cout << "\n";
-    }
-}
+#include "linalg.h"
+#include "layer.h"
+#include "model.h"
+
 
 int main() {
     std::vector<int> r11{1, 2, 3};
