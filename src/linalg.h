@@ -11,6 +11,7 @@ private:
     std::vector<std::vector<T> > data;
 
 public:
+    Matrix();
 
     Matrix(size_t _rows, size_t _cols, const T &_initial_val);
 
@@ -40,7 +41,6 @@ public:
     void print();
 
 };
-
 
 #include "linalg.cpp"
 

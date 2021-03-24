@@ -52,6 +52,7 @@ Matrix<T> &Matrix<T>::operator=(const Matrix<T> &e2) {
     return *this;
 }
 
+
 template<typename T>
 Matrix<T> Matrix<T>::operator+(const T &e2) {
     Matrix res(rows, cols, 0.0);
@@ -64,6 +65,7 @@ Matrix<T> Matrix<T>::operator+(const T &e2) {
 
     return res;
 }
+
 
 template<typename T>
 Matrix<T> Matrix<T>::operator*(const T &e2) {
@@ -100,8 +102,19 @@ const T &Matrix<T>::operator()(const size_t &row, const size_t &col) const {
 }
 
 template<typename T>
-Matrix<T> Matrix<T>::operator*(const Matrix<T> &e2) {
+Matrix<T> Matrix<T>::operator*(const Matrix<T> &m2) {
+//    when we multiplies two matrices smaller have to be rhs
+    Matrix<T> res(this->get_rows(), this->get_rows(), 0.0);
 
+    size_t m2_rows = m2.get_rows();
+    size_t m2_cols = m2.get_cols();
+
+    for (size_t i = 0; i < this->get_rows(); i++) {
+        for (size_t j = 0; j < this->get_cols(); j++) {
+            res(i, j) += data[i][j] * m2(i % m2_rows, j % m2_cols);
+        }
+    }
+    return res;
 }
 
 template<typename T>
@@ -127,10 +140,16 @@ Matrix<T> Matrix<T>::operator+(const Matrix<T> &m2) {
             res(i, j) += data[i][j] + m2(i % m2_rows, j % m2_cols);
         }
     }
-
     return res;
 }
 
+template<typename T>
+Matrix<T>::Matrix() {
+    rows = 0;
+    cols = 0;
+    std::vector<std::vector<T> > m;
+    data = m;
+}
 
 template<typename T>
 Matrix<T> transpose(Matrix<T> &m) {

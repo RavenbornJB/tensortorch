@@ -12,9 +12,9 @@ void printm(Matrix<T> m) {
 }
 
 int main() {
-//    std::vector<int> r11{1, 2, 3};
-//    std::vector<int> r12{4, 5, 6};
-//    std::vector<std::vector<int> > m1_v{r11, r12};
+    std::vector<int> r11{1, 2, 3};
+    std::vector<int> r12{4, 5, 6};
+    std::vector<std::vector<int> > m1_v{r11, r12};
 //
 //    std::vector<int> c11{7, 8};
 //    std::vector<int> c12{9, 10};
@@ -32,11 +32,13 @@ int main() {
 ////    std::cout << "\n" << std::endl;
 //    transpose(a).print();
 
-    Matrix<int> a(4, 4, 0);
+    Matrix<int> a(4, 4, 1);
     Matrix<int> b(4, 1, 1);
+    Matrix<int> c;
 
-    Matrix<int> c = a + b;
+    c = dot(a, b);
 
-    c.print();
+    transpose(c);
+
     return 0;
 }
