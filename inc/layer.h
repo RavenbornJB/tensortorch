@@ -11,7 +11,6 @@
 #include <stdexcept>
 
 #include "linalg.h"
-#include "utility.h"
 
 class Layer {
 private:

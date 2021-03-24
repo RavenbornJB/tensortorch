@@ -42,6 +42,14 @@ public:
 
     Matrix<T> operator/(const T &e2) const;
 
+    void operator+=(const T &e2);
+
+    void operator*=(const T &e2);
+
+    void operator-=(const T &e2);
+
+    void operator/=(const T &e2);
+
     // matrix|matrix operations
     Matrix<T> operator+(const Matrix<T> &e2) const;
 
@@ -50,6 +58,14 @@ public:
     Matrix<T> operator-(const Matrix<T> &e2) const;
 
     Matrix<T> operator/(const Matrix<T> &e2) const;
+
+    void operator+=(const Matrix<T> &e2);
+
+    void operator*=(const Matrix<T> &e2);
+
+    void operator-=(const Matrix<T> &e2);
+
+    void operator/=(const Matrix<T> &e2);
 
     // access operators
     [[nodiscard]] size_t get_rows() const;

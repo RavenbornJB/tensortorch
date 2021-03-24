@@ -127,6 +127,41 @@ Matrix<T> Matrix<T>::operator/(const T &e2) const {
     return res;
 }
 
+template<typename T>
+void Matrix<T>::operator+=(const T &e2) {
+    for (size_t i = 0; i < rows; i++) {
+        for (size_t j = 0; j < cols; j++) {
+            data[i][j] += e2;
+        }
+    }
+}
+
+template<typename T>
+void Matrix<T>::operator*=(const T &e2) {
+    for (size_t i = 0; i < rows; i++) {
+        for (size_t j = 0; j < cols; j++) {
+            data[i][j] *= e2;
+        }
+    }
+}
+
+template<typename T>
+void Matrix<T>::operator-=(const T &e2) {
+    for (size_t i = 0; i < rows; i++) {
+        for (size_t j = 0; j < cols; j++) {
+            data[i][j] -= e2;
+        }
+    }
+}
+
+template<typename T>
+void Matrix<T>::operator/=(const T &e2) {
+    for (size_t i = 0; i < rows; i++) {
+        for (size_t j = 0; j < cols; j++) {
+            data[i][j] /= e2;
+        }
+    }
+}
 
 template<typename T>
 size_t Matrix<T>::get_rows() const {
@@ -167,7 +202,7 @@ Matrix<T> Matrix<T>::operator+(const Matrix<T> &m2) const {
 
 template<typename T>
 Matrix<T> Matrix<T>::operator*(const Matrix<T> &m2) const {
-//    when we multiplies two matrices smaller have to be rhs
+//    when we multiplying two matrices smaller have to be rhs
     Matrix<T> res(this->get_rows(), this->get_cols(), 0.0);
 
     size_t m2_rows = m2.get_rows();
@@ -183,7 +218,7 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T> &m2) const {
 
 template<typename T>
 Matrix<T> Matrix<T>::operator-(const Matrix<T> &m2) const {
-//    when we adding two matrices smaller have to be rhs
+//    when we subtracting two matrices smaller have to be rhs
     Matrix<T> res(this->get_rows(), this->get_cols(), 0.0);
 
     size_t m2_rows = m2.get_rows();
@@ -199,7 +234,7 @@ Matrix<T> Matrix<T>::operator-(const Matrix<T> &m2) const {
 
 template<typename T>
 Matrix<T> Matrix<T>::operator/(const Matrix<T> &m2) const {
-//    when we adding two matrices smaller have to be rhs
+//    when we dividing two matrices smaller have to be rhs
     Matrix<T> res(this->get_rows(), this->get_cols(), 0.0);
 
     size_t m2_rows = m2.get_rows();
@@ -211,6 +246,62 @@ Matrix<T> Matrix<T>::operator/(const Matrix<T> &m2) const {
         }
     }
     return res;
+}
+
+template<typename T>
+void Matrix<T>::operator+=(const Matrix<T> &m2) {
+//    when we adding two matrices smaller have to be rhs
+
+    size_t m2_rows = m2.get_rows();
+    size_t m2_cols = m2.get_cols();
+
+    for (size_t i = 0; i < this->get_rows(); i++) {
+        for (size_t j = 0; j < this->get_cols(); j++) {
+            data[i][j] += m2(i % m2_rows, j % m2_cols);
+        }
+    }
+}
+
+template<typename T>
+void Matrix<T>::operator*=(const Matrix<T> &m2) {
+//    when we multiplying two matrices smaller have to be rhs
+
+    size_t m2_rows = m2.get_rows();
+    size_t m2_cols = m2.get_cols();
+
+    for (size_t i = 0; i < this->get_rows(); i++) {
+        for (size_t j = 0; j < this->get_cols(); j++) {
+            data[i][j] *= m2(i % m2_rows, j % m2_cols);
+        }
+    }
+}
+
+template<typename T>
+void Matrix<T>::operator-=(const Matrix<T> &m2) {
+//    when we subtracting two matrices smaller have to be rhs
+
+    size_t m2_rows = m2.get_rows();
+    size_t m2_cols = m2.get_cols();
+
+    for (size_t i = 0; i < this->get_rows(); i++) {
+        for (size_t j = 0; j < this->get_cols(); j++) {
+            data[i][j] -= m2(i % m2_rows, j % m2_cols);
+        }
+    }
+}
+
+template<typename T>
+void Matrix<T>::operator/=(const Matrix<T> &m2) {
+//    when we dividing two matrices smaller have to be rhs
+
+    size_t m2_rows = m2.get_rows();
+    size_t m2_cols = m2.get_cols();
+
+    for (size_t i = 0; i < this->get_rows(); i++) {
+        for (size_t j = 0; j < this->get_cols(); j++) {
+            data[i][j] /= m2(i % m2_rows, j % m2_cols);
+        }
+    }
 }
 
 template<typename T>

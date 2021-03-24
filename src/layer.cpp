@@ -115,7 +115,7 @@ Matrix<double> Layer::relu_backward(const Matrix<double> &dA, const Matrix<doubl
  */
 std::vector<Matrix<double>> Layer::linear_backward(const Matrix<double> &dZ) {
     Matrix<double> dW = dot(dZ, transpose(A_prev)) / m;
-    Matrix<double> db = sum(dZ, 1) / m;
+    Matrix<double> db = dZ.sum(1) / m;
     Matrix<double> dA_prev = dot(transpose(W), dZ);
     return {dW, db, dA_prev};
 }
