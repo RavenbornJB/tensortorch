@@ -17,5 +17,5 @@ endif()
 #option(ENABLE_PVS_STUDIO    "Use PVS-Studio static code analyzer."  OFF) # Option for the local usage only. PVS-Studio isn't installed on GitHub machines.
 #option(ENABLE_SANITIZERS    "Use sanitizers to detect errors."      OFF) # Option for the test builds. Do not use it in the production builds.
 
-include_directories(inc)
-add_executable(neuralnet_lib src/main.cpp src/linalg.cpp src/layer.cpp src/model.cpp)
+include_directories(inc src)
+add_executable(neuralnet_lib src/main.cpp src/linalg.cpp src/layer.cpp src/model.cpp src/utility.cpp)
