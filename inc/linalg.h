@@ -82,7 +82,9 @@ public:
 
     T sum() const;
 
-    void apply(T (*f)(T));
+    void apply_inplace(T (*f)(T));
+
+    Matrix<T> apply(T (*f)(T)) const;
 };
 
 

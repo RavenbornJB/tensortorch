@@ -12,6 +12,8 @@
 
 #include "linalg.h"
 
+typedef std::pair<Matrix<double>, Matrix<double>> param_pair;
+
 class Layer {
 private:
     Matrix<double> W;
@@ -35,7 +37,8 @@ private:
 
 public:
     explicit Layer(const std::string& activation_type, size_t from_size, size_t to_size, double learning_rate);
-    void print_parameters();
+    void print_parameters() const;
+    param_pair get_parameters() const;
     Matrix<double> forward(const Matrix<double> &input);
     std::vector<Matrix<double>> backward(const Matrix<double> &dZ);
     void update_parameters(const Matrix<double> &dW, const Matrix<double> &db);

@@ -362,7 +362,7 @@ T Matrix<T>::sum() const {
 }
 
 template<typename T>
-void Matrix<T>::apply(T (*f)(T)) {
+void Matrix<T>::apply_inplace(T (*f)(T)) {
     for (size_t i = 0; i < this->get_rows(); i++) {
         for (size_t j = 0; j < this->get_cols(); j++) {
             data[i][j] = (*f)(data[i][j]);
@@ -370,6 +370,16 @@ void Matrix<T>::apply(T (*f)(T)) {
     }
 }
 
+template<typename T>
+Matrix<T> Matrix<T>::apply(T (*f)(T)) const {
+    Matrix<T> res(this->get_rows(), this->get_cols(), 0);
+    for (size_t i = 0; i < this->get_rows(); i++) {
+        for (size_t j = 0; j < this->get_cols(); j++) {
+            res(i, j) = (*f)(data[i][j]);
+        }
+    }
+    return res;
+}
 
 template<typename T>
 Matrix<T> transpose(const Matrix<T> &m) {

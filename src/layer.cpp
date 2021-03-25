@@ -30,47 +30,33 @@ Layer::Layer(const std::string& activation_type, size_t from_size, size_t to_siz
         activation = Layer::relu;
         activation_backward = Layer::relu_backward;
     } else {
-        throw std::logic_error("Activation type not allowed");
+        throw std::logic_error("Activation type " + activation_type + " is not allowed");
     }
 }
 
 /* Debug function for printing W and b.
  */
-void Layer::print_parameters() {
+void Layer::print_parameters() const {
     std::cout << "W: " << std::endl;
     W.print();
-    std::cout << "\nb: " << std::endl;
+    std::cout << "b: " << std::endl;
     b.print();
+}
+
+param_pair Layer::get_parameters() const {
+    return std::make_pair(W, b);
 }
 
 /* Activation functions.
  */
 Matrix<double> Layer::sigmoid(const Matrix<double> &input) {
-    Matrix<double> output(input.get_rows(), input.get_cols(), 0);
-    for (int i = 0; i < output.get_rows(); ++i) {
-        for (int j = 0; j < output.get_cols(); ++j) {
-            output(i, j) = 1 / (1 + std::exp(input(i, j)));
-        }
-    }
-    return output;
+    return input.apply([](double x) {return 1 / (1 + std::exp(-x)); });
 }
 Matrix<double> Layer::tanh(const Matrix<double> &input) {
-    Matrix<double> output(input.get_rows(), input.get_cols(), 0);
-    for (int i = 0; i < output.get_rows(); ++i) {
-        for (int j = 0; j < output.get_cols(); ++j) {
-            output(i, j) = std::tanh(input(i, j));
-        }
-    }
-    return output;
+    return input.apply(std::tanh);
 }
 Matrix<double> Layer::relu(const Matrix<double> &input) {
-    Matrix<double> output(input.get_rows(), input.get_cols(), 0);
-    for (int i = 0; i < output.get_rows(); ++i) {
-        for (int j = 0; j < output.get_cols(); ++j) {
-            output(i, j) = input(i, j) * (int)(input(i, j) > 0);
-        }
-    }
-    return output;
+    return input.apply([](double x) {return x * (x > 0); });
 }
 
 /* Linear forward propagation function: Z = W * X + b
@@ -93,22 +79,13 @@ Matrix<double> Layer::forward(const Matrix<double> &input) {
 /* Backward activation functions.
  * */
 Matrix<double> Layer::sigmoid_backward(const Matrix<double> &dA, const Matrix<double> &Z) {
-    Matrix<double> ones (Z.get_rows(), Z.get_cols(), 1);
-    return dA * (Z * (ones - Z));
+    return dA * Z.apply([](double x) {return x * (1 - x); });
 }
 Matrix<double> Layer::tanh_backward(const Matrix<double> &dA, const Matrix<double> &Z) {
-    Matrix<double> res(dA);
-    for (int i = 0; i < Z.get_rows(); ++i) {
-        for (int j = 0; j < Z.get_cols(); ++j) res(i, j) *= 1 / std::pow(std::cosh(Z(i, j)), 2);
-    }
-    return res;
+    return dA * Z.apply([](double x) {return 1 / std::pow(std::cosh(x), 2); });
 }
 Matrix<double> Layer::relu_backward(const Matrix<double> &dA, const Matrix<double> &Z) {
-    Matrix<double> res(dA);
-    for (int i = 0; i < Z.get_rows(); ++i) {
-        for (int j = 0; j < Z.get_cols(); ++j) res(i, j) *= (int)(Z(i, j) > 0);
-    }
-    return res;
+    return dA * Z.apply([](double x) {return (double)(x > 0); });
 }
 
 /* Linear backpropagation function.
@@ -134,13 +111,15 @@ std::vector<Matrix<double>> Layer::backward(const Matrix<double> &dA) {
  * By default, uses W/b -= learning_rate * dW/b
  */
 void Layer::update_parameters(const Matrix<double> &dW, const Matrix<double> &db) {
-    // TODO update in-place when -= is shipped in linalg
-    W = W - dW * learning_rate;
-    b = b - db * learning_rate;
+    W -= dW * learning_rate;
+    b -= db * learning_rate;
 }
 
-//int main() {
-//    Layer test_layer("tanh", 5, 3, 0.01);
+int main() {
+    Layer test_layer("tanh", 5, 3, 0.01);
+    Matrix<double> a(3, 5, -0.2);
+//    Matrix<double> b(3, 5, -0.1);
+    test_layer.relu(a).print();
 //    std::vector<std::vector<double>> inp_forw = {{.1, .1, .1}, {.2, .2, .2}, {.3, .3, .3}, {.4, .4, .4}, {.5, .5, .5}};
 //    std::vector<std::vector<double>> inp_back = {{.2, .2, .2}, {.3, .3, .3}, {.4, .4, .4}};
 //    Matrix<double> in_f(inp_forw);
@@ -156,4 +135,4 @@ void Layer::update_parameters(const Matrix<double> &dW, const Matrix<double> &db
 //    test_layer.update_parameters(out_b[0], out_b[1]);
 //    std::cout << "W and b after update" << std::endl;
 //    test_layer.print_parameters();
-//}
+}
