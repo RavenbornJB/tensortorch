@@ -40,7 +40,7 @@ public:
     void print_parameters() const;
     [[nodiscard]] param_pair get_parameters() const;
     Matrix<double> forward(const Matrix<double> &input);
-    std::vector<Matrix<double>> backward(const Matrix<double> &dZ);
+    std::vector<Matrix<double>> backward(const Matrix<double> &dA);
     void update_parameters(const Matrix<double> &dW, const Matrix<double> &db);
 };
 
