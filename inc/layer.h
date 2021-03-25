@@ -12,36 +12,37 @@
 
 #include "linalg.h"
 
-typedef std::pair<Matrix<double>, Matrix<double>> param_pair;
+typedef Matrix<double> mdb;
+typedef std::pair<mdb, mdb> param_pair;
 
 class Layer {
 private:
-    Matrix<double> W;
-    Matrix<double> b;
-    Matrix<double> A_prev;
-    Matrix<double> Z;
+    mdb W;
+    mdb b;
+    mdb A_prev;
+    mdb Z;
     size_t m;
     double learning_rate;
 
-    Matrix<double> linear(const Matrix<double> &input);
-    static Matrix<double> sigmoid(const Matrix<double> &input);
-    static Matrix<double> tanh(const Matrix<double> &input);
-    static Matrix<double> relu(const Matrix<double> &input);
-    Matrix<double>(*activation)(const Matrix<double> &); // TODO try with std::function
+    mdb linear(const mdb &input);
+    static mdb sigmoid(const mdb &input);
+    static mdb tanh(const mdb &input);
+    static mdb relu(const mdb &input);
+    mdb(*activation)(const mdb &); // TODO try with std::function
 
-    std::vector<Matrix<double>> linear_backward(const Matrix<double> &dZ);
-    static Matrix<double> sigmoid_backward(const Matrix<double> &dA, const Matrix<double> &Z);
-    static Matrix<double> tanh_backward(const Matrix<double> &dA, const Matrix<double> &Z);
-    static Matrix<double> relu_backward(const Matrix<double> &dA, const Matrix<double> &Z);
-    Matrix<double>(*activation_backward)(const Matrix<double> &, const Matrix<double> &);
+    std::vector<mdb> linear_backward(const mdb &dZ);
+    static mdb sigmoid_backward(const mdb &dA, const mdb &Z);
+    static mdb tanh_backward(const mdb &dA, const mdb &Z);
+    static mdb relu_backward(const mdb &dA, const mdb &Z);
+    mdb(*activation_backward)(const mdb &, const mdb &);
 
 public:
     explicit Layer(const std::string& activation_type, size_t from_size, size_t to_size, double learning_rate);
     void print_parameters() const;
     [[nodiscard]] param_pair get_parameters() const;
-    Matrix<double> forward(const Matrix<double> &input);
-    std::vector<Matrix<double>> backward(const Matrix<double> &dA);
-    void update_parameters(const Matrix<double> &dW, const Matrix<double> &db);
+    mdb forward(const mdb &input);
+    std::vector<mdb> backward(const mdb &dA);
+    void update_parameters(const mdb &dW, const mdb &db);
 };
 
 

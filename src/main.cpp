@@ -6,33 +6,17 @@
 
 
 int main() {
-    std::vector<int> r11{1, 2, 3};
-    std::vector<int> r12{4, 5, 6};
-    std::vector<std::vector<int> > m1_v{r11, r12};
-//
-//    std::vector<int> c11{7, 8};
-//    std::vector<int> c12{9, 10};
-//    std::vector<int> c13{11, 12};
-//    std::vector<std::vector<int> > m2_v{c11, c12, c13};
-//
-//    Matrix<int> a(m1_v);
-//    Matrix<int> b(m2_v);
-//
-//    a.print();
-//    std::cout << "\n" << std::endl;
-////    printm(b);
-////    std::cout << "\n" << std::endl;
-////    printm(dot(a, b));
-////    std::cout << "\n" << std::endl;
-//    transpose(a).print();
-
-    Matrix<int> a(4, 4, 1);
-    Matrix<int> b(4, 1, 1);
-    Matrix<int> c;
-
-    c = dot(a, b);
-
-    transpose(c);
-
-    return 0;
+    def_layers_vector lp = {{3, "relu"}, {1, "sigmoid"}};
+    Model shallow_model(2, lp, 0.01);
+    std::vector<std::vector<double>> X_and_train_v = {{0., 0., 1., 1.}, {0., 1., 0., 1.}};
+    std::vector<std::vector<double>> Y_and_train_v = {{0., 0., 0., 1.}};
+    std::vector<std::vector<double>> X_and_test_v = {{1.}, {0.}};
+    std::vector<std::vector<double>> Y_and_test_v = {{0.}};
+    mdb X_and_train(X_and_train_v);
+    mdb Y_and_train(Y_and_train_v);
+    mdb X_and_test(X_and_test_v);
+    mdb Y_and_test(Y_and_test_v);
+    shallow_model.fit(X_and_train, Y_and_train, 1000);
+    mdb res = shallow_model.predict(X_and_test);
+    std::cout << (res(0, 0) == Y_and_test(0, 0)) << std::endl; // TODO make == in Matrix
 }

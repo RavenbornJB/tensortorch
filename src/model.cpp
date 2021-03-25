@@ -18,7 +18,7 @@ Model::Model(size_t num_input, const def_layers_vector &layer_parameters, double
 }
 
 void Model::print_layer(size_t n) const {
-    if (n <= L) throw std::logic_error("Layer " + std::to_string(n) + " doesn't exist");
+    if (n >= L) throw std::logic_error("Layer " + std::to_string(n) + " doesn't exist");
     std::cout << "Layer " << n << " of the network: \n";
     layers[n].print_parameters();
 }
@@ -30,25 +30,44 @@ void Model::print_layers() const {
     }
 }
 
-Matrix<double> Model::forward_propagation(const Matrix<double> &X) {
-    Matrix<double> A(X);
+mdb Model::forward_propagation(const mdb &X) {
+    mdb A_layer(X);
     for (auto &l: layers) {
-        A = l.forward(A);
+        A_layer = l.forward(A_layer);
     }
-    return A;
+    return A_layer;
 }
 
-double Model::compute_cost(const Matrix<double> &AL, const Matrix<double> &Y) const {
+double Model::compute_cost(const mdb &AL, const mdb &Y) {
     // TODO support for multiple output layer activations, other loss functions
     size_t m = Y.get_cols();
-    Matrix<double> first = Y * AL.apply(std::log);
-    Matrix<double> second = Y.apply([](double x) {return 1 - x; }) * AL.apply([](double x) {return std::log(1 - x); });
-    Matrix<double> test = (first + second).sum(1) / -m;
-    test.print();
-    return 1;
+    mdb logprobs = Y * AL.apply(std::log);
+    logprobs += Y.apply(one_minus<double>) * AL.apply([](double x) {return std::log(1 - x); });
+    mdb res = logprobs.sum(1) * -1 / m;
+    return res.squeeze();
 }
 
-void Model::fit(const Matrix<double> &X, const Matrix<double> &Y) {
-    auto AL = forward_propagation(X);
-    double res = compute_cost(AL, Y);
+void Model::backward_propagation_with_update(const mdb &AL, const mdb &Y) {
+    mdb dA_layer = Y / AL;
+    dA_layer -= Y.apply(one_minus<double>) / AL.apply(one_minus<double>);
+    dA_layer *= -1;
+    for (size_t l = 1; l <= L; ++l) {
+        auto res = layers[L - l].backward(dA_layer);
+        layers[L - l].update_parameters(res[0], res[1]);
+        dA_layer = res[2];
+    }
+}
+
+void Model::fit(const mdb &X, const mdb &Y, size_t num_iters) { // TODO make this work :D
+    for (size_t i = 0; i < num_iters; ++i) {
+        mdb AL = forward_propagation(X);
+        double cost = compute_cost(AL, Y);
+        std::cout << "Cost after iteration " << i << ": " << cost << std::endl;
+        backward_propagation_with_update(AL, Y);
+    }
+}
+
+mdb Model::predict(const mdb &X) {
+    // TODO make security checks on sizes here and in other places
+    return forward_propagation(X);
 }

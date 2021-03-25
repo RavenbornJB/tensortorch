@@ -8,9 +8,9 @@
  * It also chooses the activation functions based on the type.
  * */
 Layer::Layer(const std::string& activation_type, size_t from_size, size_t to_size, double learning_rate)
-: b(*new Matrix<double>(to_size, 1, 0)), learning_rate(learning_rate), m(0) {
+: b(*new mdb(to_size, 1, 0)), learning_rate(learning_rate), m(0) {
 
-    W = *new Matrix<double>(to_size, from_size, 0);
+    W = *new mdb(to_size, from_size, 0);
     std::default_random_engine gen{static_cast<long unsigned int>(time(nullptr))};
     std::normal_distribution<double> dist(0., std::sqrt(2. / from_size)); // He initialization
     for (size_t i = 0; i < to_size; ++i) {
@@ -49,27 +49,27 @@ param_pair Layer::get_parameters() const {
 
 /* Activation functions.
  */
-Matrix<double> Layer::sigmoid(const Matrix<double> &input) {
+mdb Layer::sigmoid(const mdb &input) {
     return input.apply([](double x) {return 1 / (1 + std::exp(-x)); });
 }
-Matrix<double> Layer::tanh(const Matrix<double> &input) {
+mdb Layer::tanh(const mdb &input) {
     return input.apply(std::tanh);
 }
-Matrix<double> Layer::relu(const Matrix<double> &input) {
+mdb Layer::relu(const mdb &input) {
     return input.apply([](double x) {return x * (x > 0); });
 }
 
 /* Linear forward propagation function: Z = W * X + b
  *
  */
-Matrix<double> Layer::linear(const Matrix<double> &input) {
+mdb Layer::linear(const mdb &input) {
     return dot(W, input) + b;
 }
 
 /* Forward-passes the input, first through the linear step,
  * then through the activation function.
  */
-Matrix<double> Layer::forward(const Matrix<double> &input) {
+mdb Layer::forward(const mdb &input) {
     A_prev = input;
     m = input.get_cols();
     Z = linear(input);
@@ -78,23 +78,23 @@ Matrix<double> Layer::forward(const Matrix<double> &input) {
 
 /* Backward activation functions.
  * */
-Matrix<double> Layer::sigmoid_backward(const Matrix<double> &dA, const Matrix<double> &Z) {
+mdb Layer::sigmoid_backward(const mdb &dA, const mdb &Z) {
     return dA * Z.apply([](double x) {return x * (1 - x); });
 }
-Matrix<double> Layer::tanh_backward(const Matrix<double> &dA, const Matrix<double> &Z) {
+mdb Layer::tanh_backward(const mdb &dA, const mdb &Z) {
     return dA * Z.apply([](double x) {return 1 / std::pow(std::cosh(x), 2); });
 }
-Matrix<double> Layer::relu_backward(const Matrix<double> &dA, const Matrix<double> &Z) {
+mdb Layer::relu_backward(const mdb &dA, const mdb &Z) {
     return dA * Z.apply([](double x) {return (double)(x > 0); });
 }
 
 /* Linear backpropagation function.
  * Calculates dW, db (for gradient descent), and dA_prev (for previous layer).
  */
-std::vector<Matrix<double>> Layer::linear_backward(const Matrix<double> &dZ) {
-    Matrix<double> dW = dot(dZ, A_prev.transpose()) / m;
-    Matrix<double> db = dZ.sum(1) / m;
-    Matrix<double> dA_prev = dot(W.transpose(), dZ);
+std::vector<mdb> Layer::linear_backward(const mdb &dZ) {
+    mdb dW = dot(dZ, A_prev.transpose()) / m;
+    mdb db = dZ.sum(1) / m;
+    mdb dA_prev = dot(W.transpose(), dZ);
     return {dW, db, dA_prev};
 }
 
@@ -102,15 +102,15 @@ std::vector<Matrix<double>> Layer::linear_backward(const Matrix<double> &dZ) {
  * then through the linear step.
  * Calculates dW, db (for gradient descent), and dA_prev (for previous layer).
  */
-std::vector<Matrix<double>> Layer::backward(const Matrix<double> &dA) {
-    Matrix<double> dZ = activation_backward(dA, Z);
+std::vector<mdb> Layer::backward(const mdb &dA) {
+    mdb dZ = activation_backward(dA, Z);
     return linear_backward(dZ);
 }
 
 /* Updates W and b based on dW and db according to gradient descent.
  * By default, uses W/b -= learning_rate * dW/b
  */
-void Layer::update_parameters(const Matrix<double> &dW, const Matrix<double> &db) {
+void Layer::update_parameters(const mdb &dW, const mdb &db) {
     W -= dW * learning_rate;
     b -= db * learning_rate;
 }

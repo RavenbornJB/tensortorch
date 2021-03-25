@@ -94,6 +94,9 @@ public:
 template<typename T>
 Matrix<T> dot(const Matrix<T> &m1, const Matrix<T> &m2);
 
+template<typename T>
+auto one_minus = [](T x) {return (T)(1 - x); };
+
 #include "linalg.cpp"
 
 #endif
