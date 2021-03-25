@@ -1,5 +1,5 @@
-#ifndef NN_PROJECT_LINALG_H
-#define NN_PROJECT_LINALG_H
+#ifndef NEURALNET_LIB_LINALG_H
+#define NEURALNET_LIB_LINALG_H
 
 #include <vector>
 #include <thread>
@@ -85,8 +85,14 @@ public:
     void apply_inplace(T (*f)(T));
 
     Matrix<T> apply(T (*f)(T)) const;
+
+    T squeeze() const;
+
+    Matrix<T> transpose() const;
 };
 
+template<typename T>
+Matrix<T> dot(const Matrix<T> &m1, const Matrix<T> &m2);
 
 #include "linalg.cpp"
 

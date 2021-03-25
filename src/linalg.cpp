@@ -1,5 +1,5 @@
-#ifndef LINALG_CPP
-#define LINALG_CPP
+#ifndef NEURALNET_LIB__LINALG_CPP
+#define NEURALNET_LIB__LINALG_CPP
 
 #include "linalg.h"
 
@@ -382,15 +382,25 @@ Matrix<T> Matrix<T>::apply(T (*f)(T)) const {
 }
 
 template<typename T>
-Matrix<T> transpose(const Matrix<T> &m) {
-    size_t row_num = m.get_rows();
-    size_t col_num = m.get_cols();
+T Matrix<T>::squeeze() const {
+    if (get_rows() == 1 && get_cols() == 1) {
+        return data[0][0];
+    } else {
+        throw std::logic_error("Matrix is (" + std::to_string(get_rows()) + ", " + std::to_string(get_cols())
+        + "), whereas (1, 1) is required for squeeze");
+    }
+}
+
+template<typename T>
+Matrix<T> Matrix<T>::transpose() const {
+    size_t row_num = get_rows();
+    size_t col_num = get_cols();
 
     Matrix<T> res(col_num, row_num, 0.0);
 
     for (size_t i = 0; i < row_num; i++) {
         for (size_t j = 0; j < col_num; j++) {
-            res(j, i) += m(i, j);
+            res(j, i) += data[i][j];
         }
     }
     return res;

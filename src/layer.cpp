@@ -92,9 +92,9 @@ Matrix<double> Layer::relu_backward(const Matrix<double> &dA, const Matrix<doubl
  * Calculates dW, db (for gradient descent), and dA_prev (for previous layer).
  */
 std::vector<Matrix<double>> Layer::linear_backward(const Matrix<double> &dZ) {
-    Matrix<double> dW = dot(dZ, transpose(A_prev)) / m;
+    Matrix<double> dW = dot(dZ, A_prev.transpose()) / m;
     Matrix<double> db = dZ.sum(1) / m;
-    Matrix<double> dA_prev = dot(transpose(W), dZ);
+    Matrix<double> dA_prev = dot(W.transpose(), dZ);
     return {dW, db, dA_prev};
 }
 
@@ -113,26 +113,4 @@ std::vector<Matrix<double>> Layer::backward(const Matrix<double> &dA) {
 void Layer::update_parameters(const Matrix<double> &dW, const Matrix<double> &db) {
     W -= dW * learning_rate;
     b -= db * learning_rate;
-}
-
-int main() {
-    Layer test_layer("tanh", 5, 3, 0.01);
-    Matrix<double> a(3, 5, -0.2);
-//    Matrix<double> b(3, 5, -0.1);
-    test_layer.relu(a).print();
-//    std::vector<std::vector<double>> inp_forw = {{.1, .1, .1}, {.2, .2, .2}, {.3, .3, .3}, {.4, .4, .4}, {.5, .5, .5}};
-//    std::vector<std::vector<double>> inp_back = {{.2, .2, .2}, {.3, .3, .3}, {.4, .4, .4}};
-//    Matrix<double> in_f(inp_forw);
-//    Matrix<double> in_b(inp_back);
-//    auto out_f = test_layer.forward(in_f);
-//    auto out_b = test_layer.backward(in_b);
-//    std::cout << "dW, db, and dA_prev" << std::endl;
-//    for (const auto& matrix: out_b) {
-//        matrix.print();
-//    }
-//    std::cout << "W and b before update" << std::endl;
-//    test_layer.print_parameters();
-//    test_layer.update_parameters(out_b[0], out_b[1]);
-//    std::cout << "W and b after update" << std::endl;
-//    test_layer.print_parameters();
 }

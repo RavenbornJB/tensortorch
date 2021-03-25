@@ -2,8 +2,8 @@
 // Created by raven on 3/22/21.
 //
 
-#ifndef NN_PROJECT_LAYER_H
-#define NN_PROJECT_LAYER_H
+#ifndef NEURALNET_LIB_LAYER_H
+#define NEURALNET_LIB_LAYER_H
 
 #include <iostream>
 #include <string>
