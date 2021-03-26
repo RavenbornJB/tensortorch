@@ -13,7 +13,6 @@
 #include "linalg.h"
 
 typedef Matrix<double> mdb;
-typedef std::pair<mdb, mdb> param_pair;
 
 class Layer {
 private:
@@ -39,7 +38,7 @@ private:
 public:
     explicit Layer(const std::string& activation_type, size_t from_size, size_t to_size, double learning_rate);
     void print_parameters() const;
-    [[nodiscard]] param_pair get_parameters() const;
+    [[nodiscard]] std::pair<mdb, mdb> get_parameters() const;
     mdb forward(const mdb &input);
     std::vector<mdb> backward(const mdb &dA);
     void update_parameters(const mdb &dW, const mdb &db);

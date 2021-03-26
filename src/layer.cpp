@@ -43,7 +43,7 @@ void Layer::print_parameters() const {
     b.print();
 }
 
-param_pair Layer::get_parameters() const {
+std::pair<mdb, mdb> Layer::get_parameters() const {
     return std::make_pair(W, b);
 }
 

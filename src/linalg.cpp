@@ -52,6 +52,22 @@ Matrix<T> &Matrix<T>::operator=(const Matrix<T> &e2) {
 }
 
 template<typename T>
+bool Matrix<T>::operator==(const Matrix<T> &other) {
+    if (&other == this) return true;
+
+    size_t other_rows = other.get_rows();
+    size_t other_cols = other.get_cols();
+    if (get_rows() != other_rows || get_cols() || other_cols) return false;
+
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
+            if (other(i, j) != data[i][j]) return false;
+        }
+    }
+    return true;
+}
+
+template<typename T>
 void Matrix<T>::mlt_thr_add_scalar(matrix_ranges &r, Matrix<T> &res_m, T scalar, std::mutex &m) {
     std::cout << "\n" << r.r1 << " " << r.r2 << std::endl;
     std::cout << r.c1 << " " << r.c2 << std::endl;
@@ -65,19 +81,19 @@ void Matrix<T>::mlt_thr_add_scalar(matrix_ranges &r, Matrix<T> &res_m, T scalar,
 
 template<typename T>
 Matrix<T> Matrix<T>::operator+(const T &scalar) const {
-    Matrix res(rows, cols, 0.0);
+    Matrix res(get_rows(), get_cols(), 0.0);
 
     std::mutex m;
     std::vector<matrix_ranges> ranges(THREADS_NUM);
     std::vector<std::thread> Threads;
 
-    size_t full_slice_size = (int) (this->get_rows() / THREADS_NUM);
-    size_t remainder = (int) (this->get_rows() % THREADS_NUM);
+    size_t full_slice_size = (int) (get_rows() / THREADS_NUM);
+    size_t remainder = (int) (get_rows() % THREADS_NUM);
 
 
     for (int i = 0; i < THREADS_NUM; i++) {
         ranges[i] = {i * full_slice_size, (i + 1) * full_slice_size + ((i == THREADS_NUM) ? remainder : 0),
-                     0, this->get_rows()};
+                     0, get_rows()};
         Threads.emplace_back(&Matrix<T>::mlt_thr_add_scalar, this, std::ref(ranges[i]), std::ref(res), scalar,
                              std::ref(m));
     }
@@ -90,10 +106,10 @@ Matrix<T> Matrix<T>::operator+(const T &scalar) const {
 
 template<typename T>
 Matrix<T> Matrix<T>::operator*(const T &e2) const {
-    Matrix res(rows, cols, 0.0);
+    Matrix res(get_rows(), get_cols(), 0.0);
 
-    for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < cols; j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             res(i, j) = data[i][j] * e2;
         }
     }
@@ -103,10 +119,10 @@ Matrix<T> Matrix<T>::operator*(const T &e2) const {
 
 template<typename T>
 Matrix<T> Matrix<T>::operator-(const T &e2) const {
-    Matrix res(rows, cols, 0.0);
+    Matrix res(get_rows(), get_cols(), 0.0);
 
-    for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < cols; j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             res(i, j) = data[i][j] - e2;
         }
     }
@@ -116,11 +132,11 @@ Matrix<T> Matrix<T>::operator-(const T &e2) const {
 
 template<typename T>
 Matrix<T> Matrix<T>::operator/(const T &e2) const {
-    Matrix res(rows, cols, 0.0);
+    Matrix res(get_rows(), get_cols(), 0.0);
 
-    for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < cols; j++) {
-            res(i, j) += data[i][j] / e2;
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
+            res(i, j) = data[i][j] / e2;
         }
     }
 
@@ -129,8 +145,8 @@ Matrix<T> Matrix<T>::operator/(const T &e2) const {
 
 template<typename T>
 void Matrix<T>::operator+=(const T &e2) {
-    for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < cols; j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             data[i][j] += e2;
         }
     }
@@ -138,8 +154,8 @@ void Matrix<T>::operator+=(const T &e2) {
 
 template<typename T>
 void Matrix<T>::operator*=(const T &e2) {
-    for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < cols; j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             data[i][j] *= e2;
         }
     }
@@ -147,8 +163,8 @@ void Matrix<T>::operator*=(const T &e2) {
 
 template<typename T>
 void Matrix<T>::operator-=(const T &e2) {
-    for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < cols; j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             data[i][j] -= e2;
         }
     }
@@ -156,8 +172,8 @@ void Matrix<T>::operator-=(const T &e2) {
 
 template<typename T>
 void Matrix<T>::operator/=(const T &e2) {
-    for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < cols; j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             data[i][j] /= e2;
         }
     }
@@ -187,13 +203,13 @@ const T &Matrix<T>::operator()(const size_t &row, const size_t &col) const {
 template<typename T>
 Matrix<T> Matrix<T>::operator+(const Matrix<T> &m2) const {
 //    when we adding two matrices smaller have to be rhs
-    Matrix<T> res(this->get_rows(), this->get_cols(), 0.0);
+    Matrix<T> res(get_rows(), get_cols(), 0.0);
 
     size_t m2_rows = m2.get_rows();
     size_t m2_cols = m2.get_cols();
 
-    for (size_t i = 0; i < this->get_rows(); i++) {
-        for (size_t j = 0; j < this->get_cols(); j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             res(i, j) += data[i][j] + m2(i % m2_rows, j % m2_cols);
         }
     }
@@ -203,13 +219,13 @@ Matrix<T> Matrix<T>::operator+(const Matrix<T> &m2) const {
 template<typename T>
 Matrix<T> Matrix<T>::operator*(const Matrix<T> &m2) const {
 //    when we multiplying two matrices smaller have to be rhs
-    Matrix<T> res(this->get_rows(), this->get_cols(), 0.0);
+    Matrix<T> res(get_rows(), get_cols(), 0.0);
 
     size_t m2_rows = m2.get_rows();
     size_t m2_cols = m2.get_cols();
 
-    for (size_t i = 0; i < this->get_rows(); i++) {
-        for (size_t j = 0; j < this->get_cols(); j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             res(i, j) += data[i][j] * m2(i % m2_rows, j % m2_cols);
         }
     }
@@ -219,13 +235,13 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T> &m2) const {
 template<typename T>
 Matrix<T> Matrix<T>::operator-(const Matrix<T> &m2) const {
 //    when we subtracting two matrices smaller have to be rhs
-    Matrix<T> res(this->get_rows(), this->get_cols(), 0.0);
+    Matrix<T> res(get_rows(), get_cols(), 0.0);
 
     size_t m2_rows = m2.get_rows();
     size_t m2_cols = m2.get_cols();
 
-    for (size_t i = 0; i < this->get_rows(); i++) {
-        for (size_t j = 0; j < this->get_cols(); j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             res(i, j) += data[i][j] - m2(i % m2_rows, j % m2_cols);
         }
     }
@@ -235,13 +251,13 @@ Matrix<T> Matrix<T>::operator-(const Matrix<T> &m2) const {
 template<typename T>
 Matrix<T> Matrix<T>::operator/(const Matrix<T> &m2) const {
 //    when we dividing two matrices smaller have to be rhs
-    Matrix<T> res(this->get_rows(), this->get_cols(), 0.0);
+    Matrix<T> res(get_rows(), get_cols(), 0.0);
 
     size_t m2_rows = m2.get_rows();
     size_t m2_cols = m2.get_cols();
 
-    for (size_t i = 0; i < this->get_rows(); i++) {
-        for (size_t j = 0; j < this->get_cols(); j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             res(i, j) += data[i][j] / m2(i % m2_rows, j % m2_cols);
         }
     }
@@ -255,8 +271,8 @@ void Matrix<T>::operator+=(const Matrix<T> &m2) {
     size_t m2_rows = m2.get_rows();
     size_t m2_cols = m2.get_cols();
 
-    for (size_t i = 0; i < this->get_rows(); i++) {
-        for (size_t j = 0; j < this->get_cols(); j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             data[i][j] += m2(i % m2_rows, j % m2_cols);
         }
     }
@@ -269,8 +285,8 @@ void Matrix<T>::operator*=(const Matrix<T> &m2) {
     size_t m2_rows = m2.get_rows();
     size_t m2_cols = m2.get_cols();
 
-    for (size_t i = 0; i < this->get_rows(); i++) {
-        for (size_t j = 0; j < this->get_cols(); j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             data[i][j] *= m2(i % m2_rows, j % m2_cols);
         }
     }
@@ -283,8 +299,8 @@ void Matrix<T>::operator-=(const Matrix<T> &m2) {
     size_t m2_rows = m2.get_rows();
     size_t m2_cols = m2.get_cols();
 
-    for (size_t i = 0; i < this->get_rows(); i++) {
-        for (size_t j = 0; j < this->get_cols(); j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             data[i][j] -= m2(i % m2_rows, j % m2_cols);
         }
     }
@@ -297,8 +313,8 @@ void Matrix<T>::operator/=(const Matrix<T> &m2) {
     size_t m2_rows = m2.get_rows();
     size_t m2_cols = m2.get_cols();
 
-    for (size_t i = 0; i < this->get_rows(); i++) {
-        for (size_t j = 0; j < this->get_cols(); j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             data[i][j] /= m2(i % m2_rows, j % m2_cols);
         }
     }
@@ -306,8 +322,8 @@ void Matrix<T>::operator/=(const Matrix<T> &m2) {
 
 template<typename T>
 void Matrix<T>::print() const {
-    for (int i = 0; i < this->get_rows(); i++) {
-        for (int j = 0; j < this->get_cols(); j++) {
+    for (int i = 0; i < get_rows(); i++) {
+        for (int j = 0; j < get_cols(); j++) {
             std::cout << data[i][j] << " ";
         }
         std::cout << "\n";
@@ -328,8 +344,8 @@ Matrix<T> Matrix<T>::sum(int8_t axis) const {
         throw std::logic_error("Invalid axis value");
     }
 
-    size_t m_rows = this->get_rows();
-    size_t m_cols = this->get_cols();
+    size_t m_rows = get_rows();
+    size_t m_cols = get_cols();
 
     Matrix<double> output;
     if (axis == 0) {
@@ -352,10 +368,8 @@ Matrix<T> Matrix<T>::sum(int8_t axis) const {
 template<typename T>
 T Matrix<T>::sum() const {
     T res = 0;
-    size_t m_rows = this->get_rows();
-    size_t m_cols = this->get_cols();
-    for (int i = 0; i < m_rows; ++i) {
-        for (int j = 0; j < m_cols; ++j)
+    for (int i = 0; i < get_rows(); ++i) {
+        for (int j = 0; j < get_cols(); ++j)
             res += data[i][j];
     }
     return res;
@@ -363,8 +377,8 @@ T Matrix<T>::sum() const {
 
 template<typename T>
 void Matrix<T>::apply_inplace(T (*f)(T)) {
-    for (size_t i = 0; i < this->get_rows(); i++) {
-        for (size_t j = 0; j < this->get_cols(); j++) {
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             data[i][j] = (*f)(data[i][j]);
         }
     }
@@ -372,9 +386,9 @@ void Matrix<T>::apply_inplace(T (*f)(T)) {
 
 template<typename T>
 Matrix<T> Matrix<T>::apply(T (*f)(T)) const {
-    Matrix<T> res(this->get_rows(), this->get_cols(), 0);
-    for (size_t i = 0; i < this->get_rows(); i++) {
-        for (size_t j = 0; j < this->get_cols(); j++) {
+    Matrix<T> res(get_rows(), get_cols(), 0);
+    for (size_t i = 0; i < get_rows(); i++) {
+        for (size_t j = 0; j < get_cols(); j++) {
             res(i, j) = (*f)(data[i][j]);
         }
     }

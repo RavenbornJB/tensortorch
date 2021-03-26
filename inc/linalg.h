@@ -32,6 +32,7 @@ public:
     explicit Matrix(std::vector<std::vector<T> > &v);
 
     Matrix<T> &operator=(const Matrix<T> &e2);
+    bool operator==(const Matrix<T> &e2);
 
     // matrix|scalar operations
     Matrix<T> operator+(const T &e2) const;
