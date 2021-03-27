@@ -24,7 +24,7 @@ public:
     explicit Model(size_t num_input, const def_layers_vector &layer_parameters, double learning_rate);
     void print_layer(size_t n) const;
     void print_layers() const;
-    void fit(const mdb &X, const mdb &Y, size_t num_iters);
+    void fit(const mdb &X, const mdb &Y, size_t num_iters, bool verbose);
     mdb predict(const mdb &X);
 };
 

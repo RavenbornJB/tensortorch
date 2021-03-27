@@ -4,6 +4,8 @@
 
 #include "model.h"
 
+#define out(x) std::cout << x << std::endl
+
 
 /* Creates a list of Layer objects according to num_input and layer_parameters.
  * Gives each of them a learning_rate.
@@ -58,16 +60,25 @@ void Model::backward_propagation_with_update(const mdb &AL, const mdb &Y) {
     }
 }
 
-void Model::fit(const mdb &X, const mdb &Y, size_t num_iters) { // TODO make this work :D
+void Model::fit(const mdb &X, const mdb &Y, size_t num_iters, bool verbose) {
     for (size_t i = 0; i < num_iters; ++i) {
         mdb AL = forward_propagation(X);
         double cost = compute_cost(AL, Y);
-        std::cout << "Cost after iteration " << i << ": " << cost << std::endl;
+        if (verbose && i % (num_iters / 10) == 0) {
+            std::cout << "Cost after iteration " << i << ": " << cost << std::endl;
+        }
         backward_propagation_with_update(AL, Y);
+    }
+    if (verbose) {
+        mdb AL = forward_propagation(X);
+        double cost = compute_cost(AL, Y);
+        std::cout << "Cost after iteration " << num_iters << ": " << cost << std::endl;
     }
 }
 
 mdb Model::predict(const mdb &X) {
     // TODO make security checks on sizes here and in other places
-    return forward_propagation(X);
+    mdb prediction = forward_propagation(X);
+    prediction.apply_inplace([](double x) {return std::floor(x + 0.5); });
+    return prediction;
 }

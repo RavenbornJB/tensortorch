@@ -4,6 +4,8 @@
 
 #include "layer.h"
 
+#define out(x) std::cout << x << std::endl
+
 /* This initializer fills W with randomly distributed values from N(mean=0, var=2/from_size)
  * It also chooses the activation functions based on the type.
  * */
@@ -12,6 +14,7 @@ Layer::Layer(const std::string& activation_type, size_t from_size, size_t to_siz
 
     W = *new mdb(to_size, from_size, 0);
     std::default_random_engine gen{static_cast<long unsigned int>(time(nullptr))};
+//    std::default_random_engine gen{to_size};
     std::normal_distribution<double> dist(0., std::sqrt(2. / from_size)); // He initialization
     for (size_t i = 0; i < to_size; ++i) {
         for (size_t j = 0; j < from_size; ++j) {
@@ -56,7 +59,7 @@ mdb Layer::tanh(const mdb &input) {
     return input.apply(std::tanh);
 }
 mdb Layer::relu(const mdb &input) {
-    return input.apply([](double x) {return x * (x > 0); });
+    return input.apply([](double x) {return std::max(x, 0.); });
 }
 
 /* Linear forward propagation function: Z = W * X + b
@@ -79,7 +82,7 @@ mdb Layer::forward(const mdb &input) {
 /* Backward activation functions.
  * */
 mdb Layer::sigmoid_backward(const mdb &dA, const mdb &Z) {
-    return dA * Z.apply([](double x) {return x * (1 - x); });
+    return dA * sigmoid(Z) * sigmoid(Z).apply(one_minus<double>);
 }
 mdb Layer::tanh_backward(const mdb &dA, const mdb &Z) {
     return dA * Z.apply([](double x) {return 1 / std::pow(std::cosh(x), 2); });
