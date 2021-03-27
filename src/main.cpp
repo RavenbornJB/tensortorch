@@ -64,7 +64,7 @@ int main() {
     mdb X_test_pts(test_data.first);
     mdb Y_test_pts(test_data.second);
 
-    def_layers_vector lin_reg_layers = {{3, "relu"}, {1, "sigmoid"}};
+    def_layers_vector lin_reg_layers = {{1, "sigmoid"}};
     Model linear_regression(2, lin_reg_layers, 0.01);
 
     linear_regression.fit(X_train_pts, Y_train_pts, 4000, false);
