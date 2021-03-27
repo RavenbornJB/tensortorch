@@ -91,7 +91,7 @@ int main() {
 //    def_layers_vector shallow_layers = {{3, "relu"}, {1, "sigmoid"}};
 //    Model shallow_model(2, shallow_layers, 0.01);
 //
-//    shallow_model.fit(X_train_pts, Y_train_pts, 10000, false);
+//    shallow_model.fit(X_train_pts, Y_train_pts, 20000, true);
 //
 //    mdb train_prediction = shallow_model.predict(X_train_pts);
 //    mdb test_prediction = shallow_model.predict(X_test_pts);
@@ -103,17 +103,17 @@ int main() {
 
     // DEMO 3
 
-//    auto train_data = get_data("data_generation/data_noisy_4_point.txt");
+//    auto train_data = get_data("data_generation/data_6_point.txt");
 //    mdb X_train_pts(train_data.first);
 //    mdb Y_train_pts(train_data.second);
-//    auto test_data = get_data("data_generation/data_noisy_4_point_test.txt");
+//    auto test_data = get_data("data_generation/data_6_point_test.txt");
 //    mdb X_test_pts(test_data.first);
 //    mdb Y_test_pts(test_data.second);
 //
-//    def_layers_vector deep_layers = {{3, "relu"}, {2, "relu"}, {1, "sigmoid"}};
+//    def_layers_vector deep_layers = {{3, "relu"}, {3, "relu"}, {1, "sigmoid"}};
 //    Model deep_model(2, deep_layers, 0.01);
 //
-//    deep_model.fit(X_train_pts, Y_train_pts, 20000, false);
+//    deep_model.fit(X_train_pts, Y_train_pts, 10000, true);
 //
 //    mdb train_prediction = deep_model.predict(X_train_pts);
 //    mdb test_prediction = deep_model.predict(X_test_pts);
