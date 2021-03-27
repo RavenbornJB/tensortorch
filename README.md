@@ -7,6 +7,6 @@
 - [Yarema Mishchenko](https://github.com/RavenbornJB)
 - [Bohdan Sydor](https://github.com/sydorbogdan)
 
-## smth else
+## Project topic
 
-todo
+TBD
