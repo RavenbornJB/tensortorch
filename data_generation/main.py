@@ -1,5 +1,6 @@
 import random
 import matplotlib.pyplot as plt
+import sys
 
 
 def generate_data_around_line(m, b, start, end, num_pts, sd):
@@ -31,6 +32,7 @@ def generate_data_around_points(pts1, pts2, num_pts, sd):
 
 if __name__ == '__main__':
     num_points = 1000
+
     # g1, g2 = generate_data_around_line(1.5, 0, -1, 1, num_points, 0.5)
     # g1, g2 = generate_data_around_points(((-1, -1), (1, 1)), ((1, -1), (-1, 1)), num_points, 0.2)
     # g1, g2 = generate_data_around_points(((-1, -1), (1, 1)), ((1, -1), (-1, 1)), num_points, 0.5)
