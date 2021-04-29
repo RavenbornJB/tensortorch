@@ -4,8 +4,6 @@
 
 #include "model.h"
 
-#define out(x) std::cout << x << std::endl
-
 
 /* Creates a list of Layer objects according to num_input and layer_parameters.
  * Gives each of them a learning_rate.

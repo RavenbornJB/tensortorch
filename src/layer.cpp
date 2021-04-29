@@ -4,7 +4,6 @@
 
 #include "layer.h"
 
-#define out(x) std::cout << x << std::endl
 
 /* This initializer fills W with randomly distributed values from N(mean=0, var=2/from_size)
  * It also chooses the activation functions based on the type.
