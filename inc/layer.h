@@ -1,48 +1,24 @@
 //
-// Created by raven on 3/22/21.
+// Created by raven on 4/30/21.
 //
 
 #ifndef NEURALNET_LIB_LAYER_H
 #define NEURALNET_LIB_LAYER_H
 
-#include <iostream>
-#include <string>
-#include <random>
-#include <stdexcept>
+#include <unordered_map>
+#include <Eigen/Dense>
 
-#include "linalg.h"
+using Eigen::MatrixXd;
 
-typedef Matrix<double> mdb;
 
 class Layer {
-private:
-    mdb W;
-    mdb b;
-    mdb A_prev;
-    mdb Z;
-    size_t m;
-    double learning_rate;
-
-    mdb linear(const mdb &input);
-    static mdb sigmoid(const mdb &input);
-    static mdb tanh(const mdb &input);
-    static mdb relu(const mdb &input);
-    mdb(*activation)(const mdb &); // TODO try with std::function
-
-    std::vector<mdb> linear_backward(const mdb &dZ);
-    static mdb sigmoid_backward(const mdb &dA, const mdb &Z);
-    static mdb tanh_backward(const mdb &dA, const mdb &Z);
-    static mdb relu_backward(const mdb &dA, const mdb &Z);
-    mdb(*activation_backward)(const mdb &, const mdb &);
-
 public:
-    explicit Layer(const std::string& activation_type, size_t from_size, size_t to_size, double learning_rate);
-    void print_parameters() const;
-    [[nodiscard]] std::pair<mdb, mdb> get_parameters() const;
-    mdb forward(const mdb &input);
-    std::vector<mdb> backward(const mdb &dA);
-    void update_parameters(const mdb &dW, const mdb &db);
+    std::string name;
+    virtual MatrixXd forward(const MatrixXd& inp, std::unordered_map<std::string, MatrixXd>& cache) { return inp; };
+    virtual MatrixXd backward(const MatrixXd& inp, std::unordered_map<std::string, MatrixXd>& cache) { return inp; };
+    virtual void update_parameters(std::unordered_map<std::string, double>& hparams, std::unordered_map<std::string, MatrixXd>& cache) {};
+    virtual std::pair<std::vector<int>, std::vector<int>> get_shape() { return {{0}, {0}}; };
 };
 
 
-#endif //NN_PROJECT_LAYER_H
+#endif //NEURALNET_LIB_LAYER_H
