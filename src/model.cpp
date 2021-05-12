@@ -7,17 +7,13 @@
 #include "model.h"
 
 
-Model::Model(std::vector<Layer*> &layers, Losses::Loss* loss, const std::string& optimizer_type, double learning_rate) {
+Model::Model(std::vector<Layer*> &layers, Losses::Loss* loss, Optimizers::Optimizer* optimizer) {
     this->L = (int) layers.size();
     this->layers = layers;
     this->cache = std::vector<std::unordered_map<std::string, MatrixXd>>(L);
 
     this->loss = loss; //TODO consider move
-    this->optimizer_type = std::string(optimizer_type);
-    std::for_each(this->optimizer_type.begin(), this->optimizer_type.end(), [](char &c) {
-        c = (char) std::tolower(c);
-    });
-    this->hparams["a"] = learning_rate;
+    this->optimizer = optimizer;
 
     //TODO allow only sigmoid with 1 neuron for binary crossentropy and only softmax with categorical
 //    if (this->loss->name == "binary_crossentropy" && this->layers[L - 1]->...) {}
@@ -35,7 +31,7 @@ MatrixXd Model::forward(const MatrixXd &input) {
 
 double Model::compute_cost(const MatrixXd &y_pred, const MatrixXd &y_true) {
     MatrixXd losses = loss->loss(y_pred, y_true);
-    return -losses.mean();
+    return losses.mean();
 }
 
 void Model::backward(const MatrixXd &y_pred, const MatrixXd &y_true) {
@@ -45,22 +41,16 @@ void Model::backward(const MatrixXd &y_pred, const MatrixXd &y_true) {
     }
 }
 
-void Model::update_parameters() {
-    //TODO create optimizer
-//    this.optimizer.update_parameters(layers, cache);
-    for (int l = 0; l < L; ++l) {
-        layers[l]->update_parameters(hparams, cache[l]);
-    }
-}
-
 void Model::fit(const MatrixXd& X_train, const MatrixXd& Y_train, int num_epochs) {
     for (int i = 0; i < num_epochs; ++i) {
         //TODO SMALL implement mini-batching
-        //TODO LARGE refactor with optimizer
         MatrixXd Y_pred = forward(X_train);
-//        double cost = compute_cost(Y_pred, Y_train); // can print or something;
+        double cost = compute_cost(Y_pred, Y_train); // can print or something;
+        if (i % (num_epochs / 10) == 0 || i == num_epochs - 1) {
+            std::cout << "Cost at iteration " << i << ": " << cost << std::endl;
+        }
         backward(Y_pred, Y_train);
-        update_parameters();
+        optimizer->update_parameters(layers, cache);
     }
 }
 

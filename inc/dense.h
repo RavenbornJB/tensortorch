@@ -33,10 +33,8 @@ public:
     Dense(int from_size, int to_size);
     MatrixXd forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) override;
     MatrixXd backward(const MatrixXd& dA, std::unordered_map<std::string, MatrixXd>& cache) override;
-    void update_parameters(std::unordered_map<std::string, double>& hparams, std::unordered_map<std::string, MatrixXd>& cache) override;
-    std::pair<MatrixXd, MatrixXd> get_parameters(); //TODO if needed change set/get to different types
-    void set_parameters(const MatrixXd& W_new, const MatrixXd& b_new);
-    std::pair<std::vector<int>, std::vector<int>> get_shape() override;
+    void update_parameters(std::unordered_map<std::string, MatrixXd>& cache) override;
+    std::unordered_map<std::string, std::vector<int>> layer_shapes() override;
 };
 
 

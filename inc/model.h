@@ -7,6 +7,7 @@
 
 #include "layer.h"
 #include "losses.h"
+#include "optimizers.h"
 
 class Model {
 private:
@@ -15,17 +16,14 @@ private:
     std::vector<std::unordered_map<std::string, MatrixXd>> cache;
 
     Losses::Loss* loss;
-    std::string optimizer_type;
-    std::unordered_map<std::string, double> hparams;
+    Optimizers::Optimizer* optimizer;
 
     MatrixXd forward(const MatrixXd &input);
     double compute_cost(const MatrixXd &y_pred, const MatrixXd &y_true);
     void backward(const MatrixXd &y_pred, const MatrixXd &y_true);
-    void update_parameters();
 public:
     //TODO constructor options
-    //TODO move learning rate with other hparams to optimizer
-    Model(std::vector<Layer*> &layers, Losses::Loss* loss, const std::string& optimizer_type, double learning_rate);
+    Model(std::vector<Layer*> &layers, Losses::Loss* loss, Optimizers::Optimizer* optimizer);
 
     void fit(const MatrixXd& X_train, const MatrixXd& Y_train, int num_epochs);
     MatrixXd predict(const MatrixXd& X_test);

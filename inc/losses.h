@@ -35,7 +35,7 @@ namespace Losses { //TODO change inline
     public:
         std::string name = "categorical_crossentropy";
         inline MatrixXd loss(const MatrixXd &y_pred, const MatrixXd &y_true) override {
-            MatrixXd logprobs = y_true.array() * (1 - y_pred.array().log());
+            MatrixXd logprobs = y_true.array() * y_pred.array().log();
             return -logprobs.colwise().sum();
         }
         inline MatrixXd loss_back(const MatrixXd& y_pred, const MatrixXd& y_true) override {

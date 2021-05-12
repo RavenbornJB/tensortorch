@@ -6,11 +6,13 @@
 
 
 void Dense::constructor(int from_size, int to_size, Activations::Activation* activation_class, const std::string &parameter_initialization) {
+    this->description.emplace_back("dense");
     this->W = Eigen::MatrixXd::Zero(to_size, from_size);
     this->b = Eigen::MatrixXd::Zero(to_size, 1);
+    this->gradients = {"dW", "db"};
 
     this->activation = activation_class;
-    this->name = "dense";
+    this->description.push_back(activation_class->name);
 
     std::default_random_engine gen{static_cast<long unsigned int>(time(nullptr))};
     double stddev;
@@ -68,7 +70,7 @@ Dense::Dense(int from_size, int to_size) {
 }
 
 MatrixXd Dense::linear(const MatrixXd &input) {
-    return W * input + b;
+    return (W * input).colwise() + b.col(0); // b is only 1 column, but we use col(0) to transform it to a Vector
 }
 
 MatrixXd Dense::forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) {
@@ -87,25 +89,14 @@ MatrixXd Dense::backward(const MatrixXd &dA, std::unordered_map<std::string, Mat
     return linear_backward(activation->activate_back(dA, cache["Z"]), cache);
 }
 
-void Dense::update_parameters(std::unordered_map<std::string, double>& hparams, std::unordered_map<std::string, MatrixXd>& cache) {
-    W -= cache["dW"] * hparams["a"];
-    b -= cache["db"] * hparams["a"];
+void Dense::update_parameters(std::unordered_map<std::string, MatrixXd>& cache) {
+    W -= cache["dW"];
+    b -= cache["db"];
 }
 
-std::pair<MatrixXd, MatrixXd> Dense::get_parameters() {
-    return std::make_pair(W, b);
-}
-
-void Dense::set_parameters(const MatrixXd& W_new, const MatrixXd& b_new) {
-    if (W_new.rows() == W.rows() && W_new.cols() == W.cols() &&
-        b_new.rows() == b.rows() && b_new.cols() == b.cols()) {
-        W = MatrixXd(W_new);
-        b = MatrixXd(b_new);
-    }
-}
-
-std::pair<std::vector<int>, std::vector<int>> Dense::get_shape() {
-    std::vector<int> input_shape = {(int) W.cols()};
-    std::vector<int> output_shape = {(int) W.rows()};
-    return std::make_pair(input_shape, output_shape);
+std::unordered_map<std::string, std::vector<int>> Dense::layer_shapes() {
+    return {
+            {"dW", {(int) W.rows(), (int) W.cols()}},
+            {"db", {(int) b.rows(), (int) b.cols()}}
+    };
 }
