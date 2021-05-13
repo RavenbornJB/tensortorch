@@ -1,16 +1,16 @@
 //
 // Created by bohdansydor on 13.05.21.
 //
-#include "BGD.h"
+#include "optimizers.h"
 #include "model.h"
 
 
-Optimizers::BGD::BGD(double _learning_rate) {
+Optimizers::optimizers::optimizers(double _learning_rate) {
     this->learning_rate = _learning_rate;
 }
 
 
-void Optimizers::BGD::optimize(Model *model, const MatrixXd &X_train, const MatrixXd &Y_train, int num_epochs) {
+void Optimizers::optimizers::optimize(Model *model, const MatrixXd &X_train, const MatrixXd &Y_train, int num_epochs) {
     for (int i = 0; i < num_epochs; ++i) {
         MatrixXd Y_pred = model->forward(X_train);
         double cost = model->compute_cost(Y_pred, Y_train); // can print or something;
@@ -24,7 +24,7 @@ void Optimizers::BGD::optimize(Model *model, const MatrixXd &X_train, const Matr
 }
 
 
-void Optimizers::BGD::update_parameters(std::vector<Layers::Layer *> &layers,
+void Optimizers::optimizers::update_parameters(std::vector<Layers::Layer *> &layers,
                                         std::vector<std::unordered_map<std::string, MatrixXd>> &cache) {
     for (int l = 0; l < layers.size(); ++l) {
         for (const auto& grad: layers[l]->gradients) {

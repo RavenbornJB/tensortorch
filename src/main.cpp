@@ -4,7 +4,7 @@
 #include "layer.h"
 #include "losses.h"
 #include "model.h"
-#include "BGD.h"
+#include "optimizers.h"
 
 
 
@@ -20,7 +20,7 @@ int main() {
 
     model.compile(
             new Losses::BinaryCrossentropy(),
-            new Optimizers::BGD(0.01)
+            new Optimizers::optimizers(0.01)
     );
 
 

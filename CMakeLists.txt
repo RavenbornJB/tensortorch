@@ -20,5 +20,5 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 #option(ENABLE_SANITIZERS    "Use sanitizers to detect errors."      OFF) # Option for the test builds. Do not use it in the production builds.
 
 include_directories(inc)
-add_executable(neuralnet_lib src/main.cpp src/Layers/dense.cpp src/model.cpp src/Optimizers/BGD.cpp src/Optimizers/optimizer.cpp)
+add_executable(neuralnet_lib src/main.cpp src/Layers/dense.cpp src/model.cpp src/Optimizers/optimizers.cpp src/Optimizers/optimizer.cpp)
 target_link_libraries(neuralnet_lib Eigen3::Eigen)

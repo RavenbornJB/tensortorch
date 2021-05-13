@@ -3,7 +3,7 @@
 //
 
 #include "model.h"
-#include "BGD.h"
+#include "optimizers.h"
 
 Model::Model(std::vector<Layers::Layer*> &layers) {
     this->L = (int) layers.size();

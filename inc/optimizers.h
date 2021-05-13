@@ -5,8 +5,8 @@
 // All formulae for advanced optimization algorithms in this file come from
 // TODO insert article link, I know which
 
-#ifndef NEURALNET_LIB_BGD_H
-#define NEURALNET_LIB_BGD_H
+#ifndef NEURALNET_LIB_OPTIMIZERS_H
+#define NEURALNET_LIB_OPTIMIZERS_H
 
 #include <iostream>
 
@@ -22,11 +22,11 @@ namespace Optimizers {
         virtual void optimize(Model* model, const MatrixXd& X_train, const MatrixXd& Y_train, int num_epochs);
     };
 
-    class BGD: public Optimizer {
+    class optimizers: public Optimizer {
     private:
         double learning_rate;
     public:
-        explicit BGD(double _learning_rate);
+        explicit optimizers(double _learning_rate);
 
         void optimize(Model* model, const MatrixXd& X_train, const MatrixXd& Y_train, int num_epochs) override;
 
@@ -34,4 +34,4 @@ namespace Optimizers {
     };
 }
 
-#endif //NEURALNET_LIB_BGD_H
+#endif //NEURALNET_LIB_OPTIMIZERS_H

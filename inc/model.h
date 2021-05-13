@@ -7,7 +7,7 @@
 
 #include "layer.h"
 #include "losses.h"
-#include "BGD.h"
+#include "optimizers.h"
 
 //namespace Optimizers {
 //    class Optimizer;
