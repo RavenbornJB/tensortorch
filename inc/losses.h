@@ -6,6 +6,7 @@
 #define NEURALNET_LIB_LOSSES_H
 
 #include <Eigen/Dense>
+#include <iostream>
 
 using Eigen::MatrixXd;
 
@@ -17,6 +18,7 @@ namespace Losses { //TODO change inline
         virtual inline MatrixXd loss(const MatrixXd &y_pred, const MatrixXd &y_true) { return y_pred; }
         virtual inline MatrixXd loss_back(const MatrixXd &y_pred, const MatrixXd &y_true) { return y_pred; }
     };
+
 
     class BinaryCrossentropy: public Loss {
     public:

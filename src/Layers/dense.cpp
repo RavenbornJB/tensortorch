@@ -2,10 +2,10 @@
 // Created by raven on 5/1/21.
 //
 
-#include "dense.h"
+#include "layer.h"
 
 
-void Dense::constructor(int from_size, int to_size, Activations::Activation* activation_class, const std::string &parameter_initialization) {
+void Layers::Dense::constructor(int from_size, int to_size, Activations::Activation* activation_class, const std::string &parameter_initialization) {
     this->description.emplace_back("dense");
     this->W = Eigen::MatrixXd::Zero(to_size, from_size);
     this->b = Eigen::MatrixXd::Zero(to_size, 1);
@@ -33,7 +33,7 @@ void Dense::constructor(int from_size, int to_size, Activations::Activation* act
     }
 }
 
-Activations::Activation* Dense::make_activation(const std::string& activation_type) {
+Activations::Activation* Layers::Dense::make_activation(const std::string& activation_type) {
     if (activation_type == "linear") {
         return new Activations::Linear;
     } else if (activation_type == "sigmoid") {
@@ -49,52 +49,52 @@ Activations::Activation* Dense::make_activation(const std::string& activation_ty
     }
 }
 
-Dense::Dense(int from_size, int to_size, const std::string &activation_type, const std::string &parameter_initialization) {
+Layers::Dense::Dense(int from_size, int to_size, const std::string &activation_type, const std::string &parameter_initialization) {
     constructor(from_size, to_size, make_activation(activation_type), parameter_initialization);
 }
 
-Dense::Dense(int from_size, int to_size, const std::string &activation_type) {
+Layers::Dense::Dense(int from_size, int to_size, const std::string &activation_type) {
     constructor(from_size, to_size, make_activation(activation_type), "normal");
 }
 
-Dense::Dense(int from_size, int to_size, Activations::Activation* activation_class, const std::string &parameter_initialization) {
+Layers::Dense::Dense(int from_size, int to_size, Activations::Activation* activation_class, const std::string &parameter_initialization) {
     constructor(from_size, to_size, activation_class, parameter_initialization);
 }
 
-Dense::Dense(int from_size, int to_size, Activations::Activation* activation_class) {
+Layers::Dense::Dense(int from_size, int to_size, Activations::Activation* activation_class) {
     constructor(from_size, to_size, activation_class, "normal");
 }
 
-Dense::Dense(int from_size, int to_size) {
+Layers::Dense::Dense(int from_size, int to_size) {
     constructor(from_size, to_size, new Activations::Linear, "normal");
 }
 
-MatrixXd Dense::linear(const MatrixXd &input) {
+MatrixXd Layers::Dense::linear(const MatrixXd &input) {
     return (W * input).colwise() + b.col(0); // b is only 1 column, but we use col(0) to transform it to a Vector
 }
 
-MatrixXd Dense::forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) {
+MatrixXd Layers::Dense::forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) {
     cache["A_prev"] = input;
     cache["Z"] = linear(input);
     return activation->activate(cache["Z"]);
 }
 
-MatrixXd Dense::linear_backward(const MatrixXd &dZ, std::unordered_map<std::string, MatrixXd>& cache) {
+MatrixXd Layers::Dense::linear_backward(const MatrixXd &dZ, std::unordered_map<std::string, MatrixXd>& cache) {
     cache["dW"] = (dZ * cache["A_prev"].transpose()) / dZ.cols();
     cache["db"] = dZ.rowwise().sum() / dZ.cols();
     return W.transpose() * dZ;
 }
 
-MatrixXd Dense::backward(const MatrixXd &dA, std::unordered_map<std::string, MatrixXd>& cache) {
+MatrixXd Layers::Dense::backward(const MatrixXd &dA, std::unordered_map<std::string, MatrixXd>& cache) {
     return linear_backward(activation->activate_back(dA, cache["Z"]), cache);
 }
 
-void Dense::update_parameters(std::unordered_map<std::string, MatrixXd>& cache) {
+void Layers::Dense::update_parameters(std::unordered_map<std::string, MatrixXd>& cache) {
     W -= cache["dW"];
     b -= cache["db"];
 }
 
-std::unordered_map<std::string, std::vector<int>> Dense::layer_shapes() {
+std::unordered_map<std::string, std::vector<int>> Layers::Dense::layer_shapes() {
     return {
             {"dW", {(int) W.rows(), (int) W.cols()}},
             {"db", {(int) b.rows(), (int) b.cols()}}

@@ -1,23 +1,28 @@
 #include <iostream>
+#include <fstream>
 
-#include "layers.h"
+#include "layer.h"
 #include "losses.h"
-#include "optimizers.h"
 #include "model.h"
+#include "BGD.h"
+
 
 
 int main() {
-    std::vector<Layer*> layers = {
-            new Dense(20, 10, "tanh", "he"),
-            new Dense(10, 5, "relu", "he"),
-            new Dense(5, 1, "sigmoid", "he")
+    std::vector<Layers::Layer*> layers = {
+            new Layers::Dense(20, 10, "tanh", "he"),
+            new Layers::Dense(10, 5, "relu", "he"),
+            new Layers::Dense(5, 1, "sigmoid", "he")
     };
 
-    Model model(
-            layers,
-            new Losses::BinaryCrossentropy,
-            new Optimizers::RMSprop(layers, 0.01, 0.999)
-            );
+    Model model(layers);
+
+
+    model.compile(
+            new Losses::BinaryCrossentropy(),
+            new Optimizers::BGD(0.01)
+    );
+
 
     MatrixXd X(20, 2);
     MatrixXd Y(1, 2);
@@ -31,5 +36,17 @@ int main() {
 
     model.fit(X, Y, 1000);
 
-    std::cout << model.predict(X) << std::endl;
+
+    MatrixXd train_prediction = model.predict(X);
+//    MatrixXd test_prediction = model.predict(X_test_pts);
+
+    std::cout << train_prediction << std::endl;
+
+//    std::cout.precision(5);
+//    std::cout << "Accuracy on the train set: " << compare(train_prediction, Y) * 100 << "%" << std::endl;
+//    std::cout << "Accuracy on the test set: " << compare(test_prediction, Y) * 100 << "%" << std::endl;
+//
+
+
+//    std::cout << model.predict(X) << std::endl;
 }
