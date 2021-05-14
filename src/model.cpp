@@ -5,6 +5,7 @@
 #include "model.h"
 #include "optimizers.h"
 
+
 Model::Model(std::vector<Layers::Layer*> &layers) {
     this->L = (int) layers.size();
     this->layers = layers;
@@ -18,16 +19,20 @@ Model::Model(std::vector<Layers::Layer*> &layers) {
 
 
 MatrixXd Model::forward(const MatrixXd &input) {
+
     MatrixXd y_pred(input);
+
     for (int l = 0; l < L; ++l) {
         y_pred = layers[l]->forward(y_pred, cache[l]);
     }
+
     return y_pred;
 }
 
 
 double Model::compute_cost(const MatrixXd &y_pred, const MatrixXd &y_true) {
     MatrixXd losses = loss->loss(y_pred, y_true);
+//    std::cout << losses << std::endl;
     return losses.mean();
 }
 
@@ -41,6 +46,7 @@ void Model::backward(const MatrixXd &y_pred, const MatrixXd &y_true) {
 
 
 void Model::fit(const MatrixXd& X_train, const MatrixXd& Y_train, int num_epochs) {
+    //TODO add shapes check
     optimizer->optimize(this, X_train, Y_train, num_epochs);
 }
 

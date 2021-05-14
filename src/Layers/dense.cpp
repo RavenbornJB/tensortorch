@@ -70,12 +70,18 @@ Layers::Dense::Dense(int from_size, int to_size) {
 }
 
 MatrixXd Layers::Dense::linear(const MatrixXd &input) {
+//    std::cout << "X_train: " << std::endl;
+//    auto a = W * input;
     return (W * input).colwise() + b.col(0); // b is only 1 column, but we use col(0) to transform it to a Vector
 }
 
 MatrixXd Layers::Dense::forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) {
+
     cache["A_prev"] = input;
+
     cache["Z"] = linear(input);
+
+
     return activation->activate(cache["Z"]);
 }
 

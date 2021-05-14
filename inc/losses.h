@@ -25,6 +25,8 @@ namespace Losses { //TODO change inline
         std::string name = "binary_crossentropy";
         inline MatrixXd loss(const MatrixXd &y_pred, const MatrixXd &y_true) override {
             MatrixXd logprobs = y_true.array() * y_pred.array().log() + (1 - y_true.array()) * (1 - y_pred.array()).log();
+//            std::cout << y_pred << std::endl;
+
             return -logprobs; // generalization for multiple output neurons
         }
         inline MatrixXd loss_back(const MatrixXd &y_pred, const MatrixXd &y_true) override {

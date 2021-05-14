@@ -9,9 +9,6 @@
 #include "losses.h"
 #include "optimizers.h"
 
-//namespace Optimizers {
-//    class Optimizer;
-//}
 
 class Model {
 private:
