@@ -51,6 +51,3 @@ void Optimizers::SGD::update_parameters(std::vector<Layers::Layer *> &layers,
         layers[l]->update_parameters(cache[l]);
     }
 }
-
-
-

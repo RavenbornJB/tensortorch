@@ -49,7 +49,7 @@ namespace Optimizers {
     class RMSprop: public Optimizer { // TODO i'm not even sure this works
     private:
         double learning_rate;
-        double _batch_size;
+        double batch_size;
         double beta;
         double epsilon;
 

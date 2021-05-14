@@ -72,8 +72,8 @@ int main() {
 
 
     std::vector<Layers::Layer*> layers = {
-            new Layers::Dense(2, 10, "tanh", "he"),
-            new Layers::Dense(10, 5, "relu", "he"),
+            new Layers::Dense(2, 5, "tanh", "he"),
+//            new Layers::Dense(10, 5, "relu", "he"),
             new Layers::Dense(5, 1, "sigmoid", "he")
     };
 
@@ -83,8 +83,8 @@ int main() {
     model.compile(
             new Losses::BinaryCrossentropy(),
 //            new Optimizers::BGD(0.01)
-//            new Optimizers::SGD( 0.01, 0.999)
-            new Optimizers::SGD(64, 0.01, 0.999)
+//            new Optimizers::SGD(64, 0.01, 0.999)
+            new Optimizers::RMSprop(64, 0.01, 0.999)
 );
 
 
@@ -103,7 +103,7 @@ int main() {
 
 
     //TODO fix problem with number of epochs( <10)
-    model.fit(X_train_pts, Y_train_pts, 100);
+    model.fit(X_train_pts, Y_train_pts, 10);
 
 
     MatrixXd train_prediction = model.predict(X_train_pts);

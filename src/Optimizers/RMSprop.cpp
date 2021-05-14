@@ -7,7 +7,7 @@
 Optimizers::RMSprop::RMSprop(int _batch_size,  double _learning_rate, double _beta, double _epsilon) {
     this->learning_rate = _learning_rate;
     this->beta = _beta;
-    this->beta = _batch_size;
+    this->batch_size = _batch_size;
     this->epsilon = _epsilon; // to avoid division by zero
 }
 
@@ -22,38 +22,17 @@ void Optimizers::RMSprop::optimize(Model *model, const MatrixXd &X_train, const 
         }
     }
 
-    bool stop = false;
-    int i = 0;
-    double prev_cost = 100;
-    while (i < num_epochs && !stop) {
-        int j = 0;
-        while (j < X_train.cols() && !stop){
-            MatrixXd Y_pred = model->forward(X_train.col(j));
-//            std::cout << X_train.col(j) << std::endl;
-
-
-            double cost = model->compute_cost(Y_pred, Y_train.col(j)); // can print or something;
+    for (int i = 0; i < num_epochs; i++) {
+        for (int j = 0; j + batch_size < X_train.cols(); j+=batch_size) {
+            MatrixXd Y_pred = model->forward(X_train.middleCols(j, batch_size));
+            double cost = model->compute_cost(Y_pred, Y_train.middleCols(j, batch_size)); // can print or something;
             if ((i % (num_epochs / 10) == 0 || i == num_epochs - 1) && j==0) {
                 std::cout << "Cost at iteration " << i << ": " << cost << std::endl;
             }
-
-            model->backward(Y_pred, Y_train.col(j));
-
-            std::cout << "\ndiff: " << std::abs(prev_cost - cost) << std::endl;
-            std::cout << "prev_cost: " << prev_cost << std::endl;
-            std::cout << "cost: " << cost << std::endl;
-            if (std::abs(prev_cost - cost) < 0.1){
-                stop = true;
-                break;
-            } else {
-                prev_cost = cost;
-            }
-
+            model->backward(Y_pred, Y_train.middleCols(j, batch_size));
             update_parameters(model->get_layers(), model->get_cache(), rms_cache);
-            j++;
-
         }
-        i++;
+
     }
 }
 
