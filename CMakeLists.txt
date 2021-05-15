@@ -22,5 +22,8 @@ find_package(Threads REQUIRED)
 #option(ENABLE_SANITIZERS    "Use sanitizers to detect errors."      OFF) # Option for the test builds. Do not use it in the production builds.
 
 include_directories(inc)
-add_executable(neuralnet_lib src/main.cpp src/Layers/dense.cpp src/model.cpp src/Optimizers/BGD.cpp src/Optimizers/optimizer.cpp src/Optimizers/SGD.cpp src/Optimizers/RMSprop.cpp)
+add_executable(neuralnet_lib src/main.cpp src/Layers/dense.cpp src/model.cpp src/Optimizers/BGD.cpp src/Optimizers/optimizer.cpp src/Optimizers/SGD.cpp src/Optimizers/RMSprop.cpp src/Optimizers/Parallel.cpp)
 target_link_libraries(neuralnet_lib Eigen3::Eigen Threads::Threads)
+
+add_executable(test src/test.cpp)
+target_link_libraries(test Eigen3::Eigen Threads::Threads)

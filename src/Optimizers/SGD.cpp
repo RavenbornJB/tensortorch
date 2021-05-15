@@ -1,7 +1,3 @@
-//
-// Created by bohdansydor on 13.05.21.
-//
-
 #include "optimizers.h"
 #include "model.h"
 
@@ -24,15 +20,17 @@ void Optimizers::SGD::optimize(Model *model, const MatrixXd &X_train, const Matr
         }
     }
 
+    auto thread_cache = std::vector<std::unordered_map<std::string, MatrixXd>>(model->get_layers().size());
+
     for (int i = 0; i < num_epochs; i++) {
         for (int j = 0; j + batch_size < X_train.cols(); j+=batch_size) {
-            MatrixXd Y_pred = model->forward(X_train.middleCols(j, batch_size));
+            MatrixXd Y_pred = model->forward(X_train.middleCols(j, batch_size), thread_cache);
             double cost = model->compute_cost(Y_pred, Y_train.middleCols(j, batch_size)); // can print or something;
             if ((i % (num_epochs / 10) == 0 || i == num_epochs - 1) && j==0) {
                 std::cout << "Cost at iteration " << i << ": " << cost << std::endl;
             }
-            model->backward(Y_pred, Y_train.middleCols(j, batch_size));
-            update_parameters(model->get_layers(), model->get_cache(), momentum_cache);
+            model->backward(Y_pred, Y_train.middleCols(j, batch_size), thread_cache);
+            update_parameters(model->get_layers(), thread_cache, momentum_cache);
         }
 
     }

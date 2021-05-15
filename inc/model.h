@@ -14,7 +14,6 @@ class Model {
 private:
     int L;
     std::vector<Layers::Layer*> layers;
-    std::vector<std::unordered_map<std::string, MatrixXd>> cache;
 
     Losses::Loss* loss;
     Optimizers::Optimizer* optimizer;
@@ -31,13 +30,11 @@ public:
 
     std::vector<Layers::Layer*>& get_layers();
 
-    std::vector<std::unordered_map<std::string, MatrixXd>>& get_cache();
-
-    MatrixXd forward(const MatrixXd &input);
+    MatrixXd forward(const MatrixXd &input, std::vector<std::unordered_map<std::string, MatrixXd>> &thread_cache);
 
     double compute_cost(const MatrixXd &y_pred, const MatrixXd &y_true);
 
-    void backward(const MatrixXd &y_pred, const MatrixXd &y_true);
+    void backward(const MatrixXd &y_pred, const MatrixXd &y_true, std::vector<std::unordered_map<std::string, MatrixXd>> &thread_cache);
 };
 
 #endif //NEURALNET_LIB_MODEL_H

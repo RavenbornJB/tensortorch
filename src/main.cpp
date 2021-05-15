@@ -73,7 +73,7 @@ int main() {
 
     std::vector<Layers::Layer*> layers = {
             new Layers::Dense(2, 5, "tanh", "he"),
-//            new Layers::Dense(10, 5, "relu", "he"),
+            new Layers::Dense(5, 5, "relu", "he"),
             new Layers::Dense(5, 1, "sigmoid", "he")
     };
 
@@ -83,39 +83,14 @@ int main() {
     model.compile(
             new Losses::BinaryCrossentropy(),
 //            new Optimizers::BGD(0.01)
-//            new Optimizers::SGD(64, 0.01, 0.999)
-            new Optimizers::RMSprop(64, 0.01, 0.999)
-);
-
-
-//    MatrixXd X(3, 10);
-//
-//    for (int i = 0; i < 10; ++i) {
-//        for (int j=0; j < 3; ++j) {
-//            X(j, i) = i;
-//        }
-//    }
-//    MatrixXd Y(1, 2);
-//    std::cout << X.middleCols(3, 3) << std::endl;
-
-//    Y(0, 0) = 1;
-//    Y(0, 1) = 0;
-
+//            new Optimizers::SGD(128, 0.01, 0.999)
+//            new Optimizers::RMSprop(64, 0.01, 0.999)
+            new Optimizers::Parallel(128, 0.01)
+            );
 
     //TODO fix problem with number of epochs( <10)
-    model.fit(X_train_pts, Y_train_pts, 10);
-
+    model.fit(X_train_pts, Y_train_pts, 5000);
 
     MatrixXd train_prediction = model.predict(X_train_pts);
-//    MatrixXd test_prediction = model.predict(X_test_pts);
-
-//    std::cout << train_prediction << std::endl;
-//    std::cout << Y_train_pts << std::endl;
-//    std::cout.precision(5);
     std::cout << "Accuracy on the train set: " << compare(train_prediction, Y_train_pts) * 100 << "%" << std::endl;
-//    std::cout << "Accuracy on the test set: " << compare(test_prediction, Y) * 100 << "%" << std::endl;
-//
-
-
-//    std::cout << model.predict(X) << std::endl;
 }

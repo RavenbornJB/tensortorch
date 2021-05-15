@@ -5,7 +5,9 @@
 #include "optimizers.h"
 #include "model.h"
 
-void Optimizers::Optimizer::optimize(Model *model, const MatrixXd &X_train, const MatrixXd &Y_train, int num_epochs) {
-    std::cout << "Optimizers::Optimizer::optimize" << std::endl;
-}
+void Optimizers::Optimizer::optimize(Model *model, const MatrixXd &X_train, const MatrixXd &Y_train, int num_epochs) {};
+
+void Optimizers::Optimizer::update_parameters(std::vector<Layers::Layer *> &layers,
+                                              std::vector<std::unordered_map<std::string, MatrixXd>> &cache,
+                                              std::vector<std::unordered_map<std::string, MatrixXd>> &rms_cache) {};
 
