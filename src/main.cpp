@@ -3,8 +3,8 @@
 
 #include "layer.h"
 #include "losses.h"
-#include "model.h"
 #include "optimizers.h"
+#include "model.h"
 
 typedef
 std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>
@@ -72,21 +72,20 @@ int main() {
 
 
     std::vector<Layers::Layer*> layers = {
-            new Layers::Dense(2, 5, "tanh", "he"),
-//            new Layers::Dense(10, 5, "relu", "he"),
-            new Layers::Dense(5, 1, "sigmoid", "he")
+            new Layers::Dense(2, 5, "relu", "he"),
+            new Layers::Dense(5, 10, "relu"),
+            new Layers::Dense(10, 4), // linear activation
+            new Layers::Dense(4, 1, "sigmoid", "xavier")
     };
 
     Model model(layers);
 
-
     model.compile(
-            new Losses::BinaryCrossentropy(),
-//            new Optimizers::BGD(0.01)
-//            new Optimizers::SGD(64, 0.01, 0.999)
+            new Losses::BinaryCrossentropy,
             new Optimizers::RMSprop(64, 0.01, 0.999)
-);
+            );
 
+    auto conv_layer = Layers::Conv2D({128, 128, 3}, 10, 5, {1, 1}, "same");
 
 //    MatrixXd X(3, 10);
 //
