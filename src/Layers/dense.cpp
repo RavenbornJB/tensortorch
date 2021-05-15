@@ -80,9 +80,7 @@ MatrixXd Layers::Dense::linear(const MatrixXd &input) {
 MatrixXd Layers::Dense::forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) {
 
     cache["A_prev"] = input;
-
     cache["Z"] = linear(input);
-
 
     return activation->activate(cache["Z"]);
 }
@@ -98,6 +96,7 @@ MatrixXd Layers::Dense::backward(const MatrixXd &dA, std::unordered_map<std::str
 }
 
 void Layers::Dense::update_parameters(std::unordered_map<std::string, MatrixXd>& cache) {
+//    std::cout << "W: " << W(0, 0) << std::endl;
     W -= cache["dW"];
     b -= cache["db"];
 }

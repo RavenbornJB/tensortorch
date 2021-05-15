@@ -17,9 +17,11 @@ endif()
 #option(ENABLE_PVS_STUDIO    "Use PVS-Studio static code analyzer."  OFF) # Option for the local usage only. PVS-Studio isn't installed on GitHub machines.
 #option(ENABLE_SANITIZERS    "Use sanitizers to detect errors."      OFF) # Option for the test builds. Do not use it in the production builds.
 
+
 include_directories(inc Eigen)
 add_executable(neuralnet_lib src/main.cpp
         src/Data/data.cpp
         src/Layers/dense.cpp src/Layers/conv2d.cpp
         src/model.cpp
-        src/Optimizers/optimizer.cpp src/Optimizers/BGD.cpp src/Optimizers/SGD.cpp src/Optimizers/RMSprop.cpp)
+        src/Optimizers/optimizer.cpp src/Optimizers/BGD.cpp src/Optimizers/SGD.cpp src/Optimizers/RMSprop.cpp src/Optimizers/Parallel.cpp)
+
