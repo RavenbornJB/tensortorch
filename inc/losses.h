@@ -5,8 +5,9 @@
 #ifndef NEURALNET_LIB_LOSSES_H
 #define NEURALNET_LIB_LOSSES_H
 
-#include <Eigen/Dense>
 #include <iostream>
+
+#include "Dense"
 
 using Eigen::MatrixXd;
 

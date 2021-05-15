@@ -12,15 +12,14 @@ elseif (${CMAKE_CXX_COMPILER_ID} MATCHES MSVC)
     add_compile_options(/O2)
 endif()
 
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
-find_package(Threads REQUIRED)
-
-
 #option(WARNINGS_AS_ERRORS   "Treat compiler warnings as errors."    ON)
 #option(ENABLE_CONAN         "Use Conan as a package manager."       OFF)
 #option(ENABLE_PVS_STUDIO    "Use PVS-Studio static code analyzer."  OFF) # Option for the local usage only. PVS-Studio isn't installed on GitHub machines.
 #option(ENABLE_SANITIZERS    "Use sanitizers to detect errors."      OFF) # Option for the test builds. Do not use it in the production builds.
 
-include_directories(inc)
-add_executable(neuralnet_lib src/main.cpp src/Layers/dense.cpp src/model.cpp src/Optimizers/BGD.cpp src/Optimizers/optimizer.cpp src/Optimizers/SGD.cpp src/Optimizers/RMSprop.cpp)
-target_link_libraries(neuralnet_lib Eigen3::Eigen Threads::Threads)
+include_directories(inc Eigen)
+add_executable(neuralnet_lib src/main.cpp
+        src/Data/data.cpp
+        src/Layers/dense.cpp src/Layers/conv2d.cpp
+        src/model.cpp
+        src/Optimizers/optimizer.cpp src/Optimizers/BGD.cpp src/Optimizers/SGD.cpp src/Optimizers/RMSprop.cpp)

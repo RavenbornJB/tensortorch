@@ -5,7 +5,7 @@
 #ifndef NEURALNET_LIB_MODEL_H
 #define NEURALNET_LIB_MODEL_H
 
-#include "layer.h"
+#include "layers.h"
 #include "losses.h"
 #include "optimizers.h"
 

@@ -6,13 +6,14 @@
 
 #include <iostream>
 
-#include "layer.h"
+#include "layers.h"
 
 
 class Model;
 
 
 namespace Optimizers {
+
     class Optimizer {
     public:
         virtual void optimize(Model* model, const MatrixXd& X_train, const MatrixXd& Y_train, int num_epochs);

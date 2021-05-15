@@ -2,7 +2,7 @@
 // Created by raven on 5/1/21.
 //
 
-#include "layer.h"
+#include "layers.h"
 
 
 void Layers::Dense::constructor(int from_size, int to_size, Activations::Activation* activation_class, const std::string &parameter_initialization) {
@@ -18,11 +18,13 @@ void Layers::Dense::constructor(int from_size, int to_size, Activations::Activat
     double stddev;
     if (parameter_initialization == "normal") {
         stddev = 1;
-    } else if (parameter_initialization == "he") {
+    } else if (parameter_initialization == "kaiming" || parameter_initialization == "he") {
         stddev = std::sqrt(2. / from_size);
-    } else if (parameter_initialization == "xavier") {
+    } else if (parameter_initialization == "xavier" || parameter_initialization == "glorot") {
         stddev = std::sqrt(6. / (from_size + to_size));
-    } else return;
+    } else {
+        throw std::logic_error("parameter initialization is not one of allowed");
+    }
 
     std::normal_distribution<double> dist(0, stddev); // He initialization
 

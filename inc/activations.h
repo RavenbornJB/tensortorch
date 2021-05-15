@@ -5,11 +5,11 @@
 #ifndef NEURALNET_LIB_ACTIVATIONS_H
 #define NEURALNET_LIB_ACTIVATIONS_H
 
-#include <Eigen/Dense>
+#include "Dense"
 
 using Eigen::MatrixXd;
 
-namespace Activations { //TODO change inline
+namespace Activations {
 
     class Activation {
     public:
