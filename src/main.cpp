@@ -63,8 +63,8 @@ int main() {
 
     auto train_data = get_data("../data_generation/data_linear.txt");
 
-    MatrixXd X_train_pts = matrix_from_vector2d(train_data.first);
-    MatrixXd Y_train_pts = matrix_from_vector2d(train_data.second);
+    MatrixXd X_train = matrix_from_vector2d(train_data.first);
+    MatrixXd Y_train = matrix_from_vector2d(train_data.second);
     auto test_data = get_data("../data_generation/data_linear_test.txt");
     MatrixXd X_test_pts = matrix_from_vector2d(test_data.first);
     MatrixXd Y_test_pts = matrix_from_vector2d(test_data.second);
@@ -73,9 +73,9 @@ int main() {
 
     std::vector<Layers::Layer*> layers = {
             new Layers::Dense(2, 5, "relu", "he"),
-            new Layers::Dense(5, 10, "relu"),
-            new Layers::Dense(10, 4), // linear activation
-            new Layers::Dense(4, 1, "sigmoid", "xavier")
+            new Layers::Dense(5, 10, new Activations::Relu),
+            new Layers::Dense(10, 6), // linear activation
+            new Layers::Dense(6, 3, "softmax", "xavier")
     };
 
     Model model(layers);
@@ -85,15 +85,14 @@ int main() {
             new Optimizers::RMSprop(64, 0.01, 0.999)
             );
 
-    auto conv_layer = Layers::Conv2D({128, 128, 3}, 10, 5, {1, 1}, "same");
+    model.fit(X_train, Y_train, 42);
+    auto train_prediction = model.predict(X_train);
 
     //TODO fix problem with number of epochs( <10)
-    model.fit(X_train_pts, Y_train_pts, 10);
 
+    auto test_prediction = model.predict(X_test_pts);
 
-    MatrixXd train_prediction = model.predict(X_train_pts);
-    MatrixXd test_prediction = model.predict(X_test_pts);
-
+    auto conv_layer = Layers::Conv2D({128, 128, 3}, 10, 5, {1, 1}, "same");
     std::cout.precision(5);
     std::cout << "Accuracy on the train set: " << compare(train_prediction, Y_train_pts) * 100 << "%" << std::endl;
     std::cout << "Accuracy on the test set: " << compare(test_prediction, Y) * 100 << "%" << std::endl;
