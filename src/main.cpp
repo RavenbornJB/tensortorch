@@ -103,12 +103,11 @@ int main() {
 
     model.compile(
             new Losses::BinaryCrossentropy(),
-            new Optimizers::BGD(0.01)
+//            new Optimizers::BGD(0.01)
 //            new Optimizers::SGD(128, 0.01, 0.999)
-
 //with higher learning rate gradient vanishing
 //            new Optimizers::RMSprop(64, 0.00001, 0.999)
-//            new Optimizers::Parallel(128, 0.1)
+            new Optimizers::Parallel(128, 0.1)
     );
 
     //TODO fix problem with number of epochs( <10)
