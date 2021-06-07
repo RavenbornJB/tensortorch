@@ -2,8 +2,8 @@
 // Created by raven on 5/1/21.
 //
 
-#ifndef NEURALNET_LIB_ACTIVATIONS_H
-#define NEURALNET_LIB_ACTIVATIONS_H
+#ifndef NEURALNET_LIB_ACTIVATIONS_HPP
+#define NEURALNET_LIB_ACTIVATIONS_HPP
 
 #include <Eigen/Dense>
 
@@ -73,4 +73,4 @@ namespace Activations { //TODO change inline
 
 }
 
-#endif //NEURALNET_LIB_ACTIVATIONS_H
+#endif //NEURALNET_LIB_ACTIVATIONS_HPP

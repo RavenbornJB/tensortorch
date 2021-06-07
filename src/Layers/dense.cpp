@@ -2,7 +2,7 @@
 // Created by raven on 5/1/21.
 //
 
-#include "layer.h"
+#include "layer.hpp"
 
 
 void Layers::Dense::constructor(int from_size, int to_size, Activations::Activation* activation_class, const std::string &parameter_initialization) {
@@ -75,7 +75,7 @@ MatrixXd Layers::Dense::linear(const MatrixXd &input) {
     return (W * input).colwise() + b.col(0); // b is only 1 column, but we use col(0) to transform it to a Vector
 }
 
-MatrixXd Layers::Dense::forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) {
+MatrixXd Layers::Dense::forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache, bool parallel_layers) {
 
     cache["A_prev"] = input;
     cache["Z"] = linear(input);

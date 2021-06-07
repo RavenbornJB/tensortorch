@@ -1,10 +1,10 @@
 #include <iostream>
 #include <fstream>
 
-#include "layer.h"
-#include "losses.h"
-#include "model.h"
-#include "optimizers.h"
+#include "layer.hpp"
+#include "losses.hpp"
+#include "model.hpp"
+#include "optimizers.hpp"
 
 typedef
 std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>
@@ -20,7 +20,7 @@ datatype get_data(const std::string &filename) {
     data.first.emplace_back();
     data.first.emplace_back();
     data.second.emplace_back();
-    double x, y;
+    double x, y, labele;
     for (size_t i = 0; i < num_points; ++i) {
 //        if (i >= 5) {
 //            continue;
@@ -30,18 +30,40 @@ datatype get_data(const std::string &filename) {
         data.first[1].push_back(y);
         data.second[0].push_back(0);
     }
-    for (size_t i = 0; i < num_points; ++i) {
-//        if (i >= 5) {
-//            continue;
-//        }
-        datafile >> x >> y;
-        data.first[0].push_back(x);
-        data.first[1].push_back(y);
-        data.second[0].push_back(1);
-    }
+
     return data;
 }
 
+
+datatype get_dat_shuffled(const std::string &filename) {
+    std::ifstream datafile(filename);
+    if (!datafile.is_open()) throw std::invalid_argument("Incorrect file name");
+    size_t num_points;
+    datafile >> num_points;
+
+    datatype data;
+    data.first.emplace_back();
+    data.first.emplace_back();
+    data.second.emplace_back();
+    double x, y, label;
+    for (size_t i = 0; i < num_points; ++i) {
+
+        datafile >> x >> y >> label;
+        data.first[0].push_back(x);
+        data.first[1].push_back(y);
+        data.second[0].push_back(label);
+    }
+//    for (size_t i = 0; i < num_points; ++i) {
+////        if (i >= 5) {
+////            continue;
+////        }
+//        datafile >> x >> y;
+//        data.first[0].push_back(x);
+//        data.first[1].push_back(y);
+//        data.second[0].push_back(1);
+//    }
+    return data;
+}
 
 double compare(const MatrixXd &prediction, const MatrixXd &Y) {
     size_t m = Y.cols();
@@ -61,7 +83,7 @@ MatrixXd matrix_from_vector2d(std::vector<std::vector<double> > &v) {
 
 int main() {
 
-    auto train_data = get_data("../data_generation/data_linear.txt");
+    auto train_data = get_data("../data_generation/shuffled_data_noisy_4_point.txt");
 
     MatrixXd X_train_pts = matrix_from_vector2d(train_data.first);
     MatrixXd Y_train_pts = matrix_from_vector2d(train_data.second);
@@ -70,8 +92,7 @@ int main() {
     MatrixXd Y_test_pts = matrix_from_vector2d(test_data.second);
 
 
-
-    std::vector<Layers::Layer*> layers = {
+    std::vector<Layers::Layer *> layers = {
             new Layers::Dense(2, 5, "tanh", "he"),
             new Layers::Dense(5, 5, "relu", "he"),
             new Layers::Dense(5, 1, "sigmoid", "he")
@@ -82,14 +103,18 @@ int main() {
 
     model.compile(
             new Losses::BinaryCrossentropy(),
-//            new Optimizers::BGD(0.01)
+            new Optimizers::BGD(0.01)
 //            new Optimizers::SGD(128, 0.01, 0.999)
-//            new Optimizers::RMSprop(64, 0.01, 0.999)
-            new Optimizers::Parallel(128, 0.01)
-            );
+
+//with higher learning rate gradient vanishing
+//            new Optimizers::RMSprop(64, 0.00001, 0.999)
+//            new Optimizers::Parallel(128, 0.1)
+    );
 
     //TODO fix problem with number of epochs( <10)
     model.fit(X_train_pts, Y_train_pts, 5000);
+
+    std::cout << "cols: " << Y_train_pts.cols() << "\nrows: " << Y_train_pts.rows() << std::endl;
 
     MatrixXd train_prediction = model.predict(X_train_pts);
     std::cout << "Accuracy on the train set: " << compare(train_prediction, Y_train_pts) * 100 << "%" << std::endl;

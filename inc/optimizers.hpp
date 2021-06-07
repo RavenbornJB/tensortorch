@@ -6,7 +6,8 @@
 
 #include <iostream>
 
-#include "layer.h"
+#include "layer.hpp"
+#include "thread_pool.hpp"
 
 class Model;
 

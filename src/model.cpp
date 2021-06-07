@@ -2,8 +2,8 @@
 // Created by raven on 5/4/21.
 //
 
-#include "model.h"
-#include "optimizers.h"
+#include "model.hpp"
+#include "optimizers.hpp"
 
 
 Model::Model(std::vector<Layers::Layer*> &layers) {
@@ -18,13 +18,13 @@ Model::Model(std::vector<Layers::Layer*> &layers) {
 }
 
 
-MatrixXd Model::forward(const MatrixXd &input, std::vector<std::unordered_map<std::string, MatrixXd>> &thread_cache) {
+MatrixXd Model::forward(const MatrixXd &input, std::vector<std::unordered_map<std::string, MatrixXd>> &thread_cache, bool parallel_layers) {
 
     MatrixXd y_pred(input);
 
 
     for (int l = 0; l < L; ++l) {
-        y_pred = layers[l]->forward(y_pred, thread_cache[l]);
+        y_pred = layers[l]->forward(y_pred, thread_cache[l], parallel_layers);
     }
 
     return y_pred;
@@ -54,7 +54,7 @@ void Model::fit(const MatrixXd& X_train, const MatrixXd& Y_train, int num_epochs
 
 MatrixXd Model::predict(const MatrixXd& X_test) {
     auto thread_cache = std::vector<std::unordered_map<std::string, MatrixXd>>(L);
-    return forward(X_test, thread_cache);
+    return forward(X_test, thread_cache, false);
 }
 
 

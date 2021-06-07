@@ -2,16 +2,16 @@
 // Created by raven on 4/30/21.
 //
 
-#ifndef NEURALNET_LIB_LAYER_H
-#define NEURALNET_LIB_LAYER_H
+#ifndef NEURALNET_LIB_LAYER_HPP
+#define NEURALNET_LIB_LAYER_HPP
 
 #include <unordered_map>
 #include <Eigen/Dense>
 #include <random>
 #include <iostream>
 
-#include "layer.h"
-#include "activations.h"
+#include "layer.hpp"
+#include "activations.hpp"
 
 using Eigen::MatrixXd;
 
@@ -22,7 +22,7 @@ namespace Layers {
         std::vector<std::string> description;
         std::vector<std::string> gradients;
 
-        virtual MatrixXd forward(const MatrixXd &inp, std::unordered_map<std::string, MatrixXd> &cache) { return inp; };
+        virtual MatrixXd forward(const MatrixXd &inp, std::unordered_map<std::string, MatrixXd> &cache, bool parallel_layers) { return inp; };
 
         virtual MatrixXd
         backward(const MatrixXd &inp, std::unordered_map<std::string, MatrixXd> &cache) { return inp; };
@@ -52,11 +52,11 @@ namespace Layers {
         Dense(int from_size, int to_size, Activations::Activation* activation, const std::string &parameter_initialization);
         Dense(int from_size, int to_size, Activations::Activation* activation);
         Dense(int from_size, int to_size);
-        MatrixXd forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) override;
+        MatrixXd forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache, bool parallel_layers) override;
         MatrixXd backward(const MatrixXd& dA, std::unordered_map<std::string, MatrixXd>& cache) override;
         void update_parameters(std::unordered_map<std::string, MatrixXd>& cache) override;
         std::unordered_map<std::string, std::vector<int>> layer_shapes() override;
     };
 
 }
-#endif //NEURALNET_LIB_LAYER_H
+#endif //NEURALNET_LIB_LAYER_HPP
