@@ -1,8 +1,8 @@
 //
 // Created by bohdansydor on 13.05.21.
 //
-#include "optimizers.h"
-#include "model.h"
+#include "optimizers.hpp"
+#include "model.hpp"
 
 Optimizers::RMSprop::RMSprop(int _batch_size,  double _learning_rate, double _beta, double _epsilon) {
     this->learning_rate = _learning_rate;
@@ -28,7 +28,7 @@ void Optimizers::RMSprop::optimize(Model *model, const MatrixXd &X_train, const 
 //    double prev_cost =
     for (int i = 0; i < num_epochs; i++) {
         for (int j = 0; j + batch_size < X_train.cols(); j+=batch_size) {
-            MatrixXd Y_pred = model->forward(X_train.middleCols(j, batch_size), thread_cache);
+            MatrixXd Y_pred = model->forward(X_train.middleCols(j, batch_size), thread_cache, true);
             double cost = model->compute_cost(Y_pred, Y_train.middleCols(j, batch_size)); // can print or something;
 
             if ((i % (num_epochs / 10) == 0 || i == num_epochs - 1) && j==0) {

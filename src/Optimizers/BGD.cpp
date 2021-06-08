@@ -1,8 +1,8 @@
 //
 // Created by bohdansydor on 13.05.21.
 //
-#include "optimizers.h"
-#include "model.h"
+#include "optimizers.hpp"
+#include "model.hpp"
 
 
 Optimizers::BGD::BGD(double _learning_rate) {
@@ -15,7 +15,7 @@ void Optimizers::BGD::optimize(Model *model, const MatrixXd &X_train, const Matr
     auto thread_cache = std::vector<std::unordered_map<std::string, MatrixXd>>(model->get_layers().size());
 
     for (int i = 0; i < num_epochs; ++i) {
-        MatrixXd Y_pred = model->forward(X_train, thread_cache);
+        MatrixXd Y_pred = model->forward(X_train, thread_cache, true);
         double cost = model->compute_cost(Y_pred, Y_train); // can print or something;
         if (i % (num_epochs / 10) == 0 || i == num_epochs - 1) {
             std::cout << "Cost at iteration " << i << ": " << cost << std::endl;

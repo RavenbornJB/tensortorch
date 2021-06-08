@@ -2,8 +2,8 @@
 // Created by bohdansydor on 13.05.21.
 //
 
-#include "optimizers.h"
-#include "model.h"
+#include "optimizers.hpp"
+#include "model.hpp"
 
 void Optimizers::Optimizer::optimize(Model *model, const MatrixXd &X_train, const MatrixXd &Y_train, int num_epochs) {};
 

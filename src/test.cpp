@@ -10,13 +10,8 @@ using namespace Eigen;
 using namespace std;
 int main(void)
 {
-    int const N = 2;
-    MatrixXi A(N,N);
-    A.setRandom();
-    cout << "A =\n" << A << '\n' << endl;
-//    auto a = A.middleCols(1,2);
-//    a(0, 0) = 1000000000;
-    A += A;
-    cout << "A =\n" << A << endl;
+    int x = 1;
+    double j = 1.1;
+    std::cout << (x > j);
     return 0;
 }

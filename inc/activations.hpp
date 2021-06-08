@@ -2,14 +2,14 @@
 // Created by raven on 5/1/21.
 //
 
-#ifndef NEURALNET_LIB_ACTIVATIONS_H
-#define NEURALNET_LIB_ACTIVATIONS_H
+#ifndef NEURALNET_LIB_ACTIVATIONS_HPP
+#define NEURALNET_LIB_ACTIVATIONS_HPP
 
-#include "Dense"
+#include <Eigen/Dense>
 
 using Eigen::MatrixXd;
 
-namespace Activations {
+namespace Activations { //TODO change inline
 
     class Activation {
     public:
@@ -73,4 +73,4 @@ namespace Activations {
 
 }
 
-#endif //NEURALNET_LIB_ACTIVATIONS_H
+#endif //NEURALNET_LIB_ACTIVATIONS_HPP

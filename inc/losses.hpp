@@ -2,12 +2,11 @@
 // Created by raven on 5/4/21.
 //
 
-#ifndef NEURALNET_LIB_LOSSES_H
-#define NEURALNET_LIB_LOSSES_H
+#ifndef NEURALNET_LIB_LOSSES_HPP
+#define NEURALNET_LIB_LOSSES_HPP
 
+#include <Eigen/Dense>
 #include <iostream>
-
-#include "Dense"
 
 using Eigen::MatrixXd;
 
@@ -63,4 +62,4 @@ namespace Losses { //TODO change inline
 
 }
 
-#endif //NEURALNET_LIB_LOSSES_H
+#endif //NEURALNET_LIB_LOSSES_HPP

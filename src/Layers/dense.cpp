@@ -2,7 +2,7 @@
 // Created by raven on 5/1/21.
 //
 
-#include "layers.h"
+#include "layer.hpp"
 
 
 void Layers::Dense::constructor(int from_size, int to_size, Activations::Activation* activation_class, const std::string &parameter_initialization) {
@@ -18,13 +18,11 @@ void Layers::Dense::constructor(int from_size, int to_size, Activations::Activat
     double stddev;
     if (parameter_initialization == "normal") {
         stddev = 1;
-    } else if (parameter_initialization == "kaiming" || parameter_initialization == "he") {
+    } else if (parameter_initialization == "he") {
         stddev = std::sqrt(2. / from_size);
-    } else if (parameter_initialization == "xavier" || parameter_initialization == "glorot") {
+    } else if (parameter_initialization == "xavier") {
         stddev = std::sqrt(6. / (from_size + to_size));
-    } else {
-        throw std::logic_error("parameter initialization is not one of allowed");
-    }
+    } else return;
 
     std::normal_distribution<double> dist(0, stddev); // He initialization
 
@@ -77,7 +75,7 @@ MatrixXd Layers::Dense::linear(const MatrixXd &input) {
     return (W * input).colwise() + b.col(0); // b is only 1 column, but we use col(0) to transform it to a Vector
 }
 
-MatrixXd Layers::Dense::forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) {
+MatrixXd Layers::Dense::forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache, bool parallel_layers) {
 
     cache["A_prev"] = input;
     cache["Z"] = linear(input);

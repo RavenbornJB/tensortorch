@@ -6,12 +6,12 @@
 
 #include <iostream>
 
-#include "layers.h"
+#include "layer.hpp"
+#include "thread_pool.hpp"
 
 class Model;
 
 namespace Optimizers {
-
     class Optimizer {
     private:
         int batch_size;
