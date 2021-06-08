@@ -20,7 +20,7 @@ find_package(Threads REQUIRED)
 #option(ENABLE_PVS_STUDIO    "Use PVS-Studio static code analyzer."  OFF) # Option for the local usage only. PVS-Studio isn't installed on GitHub machines.
 #option(ENABLE_SANITIZERS    "Use sanitizers to detect errors."      OFF) # Option for the test builds. Do not use it in the production builds.
 
-include_directories(inc)
+include_directories(inc Eigen)
 add_executable(tensortorch
         src/main.cpp
         src/Layers/dense.cpp

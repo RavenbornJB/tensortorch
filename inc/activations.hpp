@@ -5,7 +5,7 @@
 #ifndef NEURALNET_LIB_ACTIVATIONS_HPP
 #define NEURALNET_LIB_ACTIVATIONS_HPP
 
-#include <Eigen/Dense>
+#include "Dense"
 
 using Eigen::MatrixXd;
 

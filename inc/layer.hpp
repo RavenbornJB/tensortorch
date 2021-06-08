@@ -6,10 +6,10 @@
 #define NEURALNET_LIB_LAYER_HPP
 
 #include <unordered_map>
-#include <Eigen/Dense>
 #include <random>
 #include <iostream>
 
+#include "Dense"
 #include "layer.hpp"
 #include "activations.hpp"
 
