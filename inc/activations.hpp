@@ -71,6 +71,7 @@ namespace Activations { //TODO change inline
         }
     };
 
+    Activation* make_activation(const std::string& activation_type);
 }
 
 #endif //NEURALNET_LIB_ACTIVATIONS_HPP

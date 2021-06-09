@@ -8,9 +8,10 @@
 #include <unordered_map>
 #include <random>
 #include <iostream>
+#include <string>
+#include <cmath>
 
 #include "Dense"
-#include "layer.hpp"
 #include "activations.hpp"
 
 using Eigen::MatrixXd;
@@ -22,7 +23,7 @@ namespace Layers {
         std::vector<std::string> description;
         std::vector<std::string> gradients;
 
-        virtual MatrixXd forward(const MatrixXd &inp, std::unordered_map<std::string, MatrixXd> &cache, bool parallel_layers) { return inp; };
+        virtual MatrixXd forward(const MatrixXd &inp, std::unordered_map<std::string, MatrixXd> &cache) { return inp; };
 
         virtual MatrixXd
         backward(const MatrixXd &inp, std::unordered_map<std::string, MatrixXd> &cache) { return inp; };
@@ -41,7 +42,6 @@ namespace Layers {
         void constructor(int from_size, int to_size, Activations::Activation* activation, const std::string &parameter_initialization);
 
         Activations::Activation* activation;
-        Activations::Activation* make_activation(const std::string& activation_type);
 
         MatrixXd linear(const MatrixXd& input);
         MatrixXd linear_backward(const MatrixXd& dZ, std::unordered_map<std::string, MatrixXd>& cache);
@@ -52,7 +52,49 @@ namespace Layers {
         Dense(int from_size, int to_size, Activations::Activation* activation, const std::string &parameter_initialization);
         Dense(int from_size, int to_size, Activations::Activation* activation);
         Dense(int from_size, int to_size);
-        MatrixXd forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache, bool parallel_layers) override;
+        MatrixXd forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) override;
+        MatrixXd backward(const MatrixXd& dA, std::unordered_map<std::string, MatrixXd>& cache) override;
+        void update_parameters(std::unordered_map<std::string, MatrixXd>& cache) override;
+        std::unordered_map<std::string, std::vector<int>> layer_shapes() override;
+    };
+
+    class RNN: public Layer {
+    private:
+        MatrixXd Waa;
+        MatrixXd Wax;
+        MatrixXd Wya;
+        MatrixXd ba;
+        MatrixXd by;
+
+        int input_size;
+        int hidden_size;
+        int output_size;
+        int sequence_size;
+
+        Activations::Activation* activation_a;
+        Activations::Activation* activation_y;
+
+        MatrixXd cell_forward(const MatrixXd& input, MatrixXd& hidden, const std::string& timestep,
+                              std::unordered_map<std::string, MatrixXd>& cache);
+
+        MatrixXd linear_backward_y(const MatrixXd &dZ, const std::string& timestep,
+                                 std::unordered_map<std::string, MatrixXd>& cache);
+        MatrixXd cell_backward_y(const MatrixXd &dA, const std::string& timestep,
+                                   std::unordered_map<std::string, MatrixXd>& cache);
+        std::pair<MatrixXd, MatrixXd> cell_backward_a(const MatrixXd& dA, const std::string& timestep,
+                                                      std::unordered_map<std::string, MatrixXd>& cache);
+        std::pair<MatrixXd, MatrixXd> cell_backward(const MatrixXd& dA, const MatrixXd& dA_next,
+                                                    const std::string& timestep,
+                                                    std::unordered_map<std::string, MatrixXd>& cache);
+
+        void initialize_gradient_caches(std::unordered_map<std::string, MatrixXd>& cache);
+        bool initialized;
+
+    public:
+        RNN(int input_size, int hidden_size, int output_size, Activations::Activation *activation_class_a,
+            Activations::Activation *activation_class_y, const std::string &parameter_initialization, int sequence_size);
+
+        MatrixXd forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) override;
         MatrixXd backward(const MatrixXd& dA, std::unordered_map<std::string, MatrixXd>& cache) override;
         void update_parameters(std::unordered_map<std::string, MatrixXd>& cache) override;
         std::unordered_map<std::string, std::vector<int>> layer_shapes() override;
