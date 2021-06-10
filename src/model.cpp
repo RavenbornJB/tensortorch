@@ -18,13 +18,11 @@ Model::Model(std::vector<Layers::Layer*> &layers) {
 }
 
 
-MatrixXd Model::forward(const MatrixXd &input, std::vector<std::unordered_map<std::string, MatrixXd>> &thread_cache, bool parallel_layers) {
-
+MatrixXd Model::forward(const MatrixXd &input, std::vector<std::unordered_map<std::string, MatrixXd>> &thread_cache) {
     MatrixXd y_pred(input);
 
-
     for (int l = 0; l < L; ++l) {
-        y_pred = layers[l]->forward(y_pred, thread_cache[l], parallel_layers);
+        y_pred = layers[l]->forward(y_pred, thread_cache[l]);
     }
 
     return y_pred;

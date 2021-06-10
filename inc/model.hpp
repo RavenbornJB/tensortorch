@@ -30,7 +30,7 @@ public:
 
     std::vector<Layers::Layer*>& get_layers();
 
-    MatrixXd forward(const MatrixXd &input, std::vector<std::unordered_map<std::string, MatrixXd>> &thread_cache, bool parallel_layers);
+    MatrixXd forward(const MatrixXd &input, std::vector<std::unordered_map<std::string, MatrixXd>> &thread_cache);
 
     double compute_cost(const MatrixXd &y_pred, const MatrixXd &y_true);
 

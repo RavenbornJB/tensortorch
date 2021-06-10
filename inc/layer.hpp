@@ -69,22 +69,25 @@ namespace Layers {
         int input_size;
         int hidden_size;
         int output_size;
-        int sequence_size;
+
+        int batch_size;
+        int batch_sequence_length;
 
         Activations::Activation* activation_a;
         Activations::Activation* activation_y;
 
         MatrixXd cell_forward(const MatrixXd& input, MatrixXd& hidden, const std::string& timestep,
-                              std::unordered_map<std::string, MatrixXd>& cache);
+                              const std::string& batch_num, std::unordered_map<std::string, MatrixXd>& cache);
 
-        MatrixXd linear_backward_y(const MatrixXd &dZ, const std::string& timestep,
+        MatrixXd linear_backward_y(const MatrixXd &dZ, const std::string& timestep, const std::string& batch_num,
                                  std::unordered_map<std::string, MatrixXd>& cache);
-        MatrixXd cell_backward_y(const MatrixXd &dA, const std::string& timestep,
+        MatrixXd cell_backward_y(const MatrixXd &dA, const std::string& timestep, const std::string& batch_num,
                                    std::unordered_map<std::string, MatrixXd>& cache);
         std::pair<MatrixXd, MatrixXd> cell_backward_a(const MatrixXd& dA, const std::string& timestep,
+                                                      const std::string& batch_num,
                                                       std::unordered_map<std::string, MatrixXd>& cache);
         std::pair<MatrixXd, MatrixXd> cell_backward(const MatrixXd& dA, const MatrixXd& dA_next,
-                                                    const std::string& timestep,
+                                                    const std::string& timestep, const std::string& batch_num,
                                                     std::unordered_map<std::string, MatrixXd>& cache);
 
         void initialize_gradient_caches(std::unordered_map<std::string, MatrixXd>& cache);
@@ -92,7 +95,7 @@ namespace Layers {
 
     public:
         RNN(int input_size, int hidden_size, int output_size, Activations::Activation *activation_class_a,
-            Activations::Activation *activation_class_y, const std::string &parameter_initialization, int sequence_size);
+            Activations::Activation *activation_class_y, const std::string &parameter_initialization);
 
         MatrixXd forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) override;
         MatrixXd backward(const MatrixXd& dA, std::unordered_map<std::string, MatrixXd>& cache) override;

@@ -28,9 +28,3 @@ add_executable(tensortorch
         src/Optimizers/RMSprop.cpp src/Optimizers/Parallel.cpp
         src/model.cpp)
 target_link_libraries(tensortorch Threads::Threads)
-
-add_executable(rnn_test
-        src/rnn_test.cpp
-        src/Layers/rnn.cpp
-        src/activations.cpp)
-

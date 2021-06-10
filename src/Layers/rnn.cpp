@@ -7,7 +7,7 @@
 using namespace Layers;
 
 RNN::RNN(int input_size, int hidden_size, int output_size, Activations::Activation *activation_class_a,
-         Activations::Activation *activation_class_y, const std::string &parameter_initialization, int sequence_size) {
+         Activations::Activation *activation_class_y, const std::string &parameter_initialization) {
     this->description.emplace_back("rnn");
     this->Waa = Eigen::MatrixXd::Zero(hidden_size, hidden_size);
     this->Wax = Eigen::MatrixXd::Zero(hidden_size, input_size);
@@ -19,7 +19,6 @@ RNN::RNN(int input_size, int hidden_size, int output_size, Activations::Activati
     this->input_size = input_size;
     this->hidden_size = hidden_size;
     this->output_size = output_size;
-    this->sequence_size = sequence_size;
 
     this->activation_a = activation_class_a;
     this->activation_y = activation_class_y;
@@ -68,75 +67,90 @@ RNN::RNN(int input_size, int hidden_size, int output_size, Activations::Activati
 }
 
 MatrixXd RNN::cell_forward(const MatrixXd &input, MatrixXd &hidden, const std::string& timestep,
-                           std::unordered_map<std::string, MatrixXd> &cache) {
-    cache["X" + timestep] = input;
-    cache["A_prev" + timestep] = hidden;
+                           const std::string& batch_num, std::unordered_map<std::string, MatrixXd> &cache) {
+    cache["X" + timestep + "_" + batch_num] = input;
+    cache["A_prev" + timestep + "_" + batch_num] = hidden;
     hidden = activation_a->activate(Waa * hidden + Wax * input + ba);
-    cache["A_next" + timestep] = hidden;
+    cache["A_next" + timestep + "_" + batch_num] = hidden;
 
     return activation_y->activate(Wya * hidden + by);
 }
 
 MatrixXd RNN::forward(const MatrixXd &input, std::unordered_map<std::string, MatrixXd> &cache) {
-    if (input.cols() > sequence_size) {
-        throw std::range_error("Input sequence larger than maximum size");
+    batch_size = (int) input.rows() / input_size;
+    if (batch_size <= 0 || (batch_size > 0 && input.rows() % input_size != 0)) {
+        throw std::runtime_error("Invalid RNN input");
     }
-    MatrixXd padded_input(input_size, sequence_size);
-    MatrixXd padding = MatrixXd::Zero(input_size, sequence_size - input.cols());
-    padded_input << input, padding;
+    batch_sequence_length = (int) input.cols();
 
-    MatrixXd hidden = MatrixXd::Zero(hidden_size, 1);
+    MatrixXd output(output_size * batch_size, batch_sequence_length);
 
-    MatrixXd output(output_size, sequence_size);
-    for (int t = 0; t < sequence_size; ++t) {
-        output.col(t) = cell_forward(padded_input.col(t), hidden, std::to_string(t), cache);
+    MatrixXd relevant_block;
+    for (int b = 0; b < batch_size; ++ b) {
+        MatrixXd hidden = MatrixXd::Zero(hidden_size, 1);
+
+        for (int t = 0; t < batch_sequence_length; ++t) {
+            relevant_block = input.block(b * input_size, t, input_size, 1);
+            output.block(b * output_size, t, output_size, 1) =
+                    cell_forward(relevant_block, hidden, std::to_string(t), std::to_string(b), cache);
+        }
     }
 
     return output;
 }
 
-MatrixXd RNN::linear_backward_y(const MatrixXd &dZ, const std::string& timestep,
-                              std::unordered_map<std::string, MatrixXd>& cache) {
-    cache["dWya"] += dZ * cache["A_next" + timestep].transpose();
+MatrixXd RNN::linear_backward_y(const MatrixXd &dZ, const std::string& timestep, const std::string& batch_num,
+                                std::unordered_map<std::string, MatrixXd>& cache) {
+    cache["dWya"] += dZ * cache["A_next" + timestep + "_" + batch_num].transpose();
     cache["dby"] += dZ.rowwise().sum();
     return Wya.transpose() * dZ;
 }
 
-MatrixXd RNN::cell_backward_y(const MatrixXd &dA, const std::string& timestep,
-                                std::unordered_map<std::string, MatrixXd>& cache) {
+MatrixXd RNN::cell_backward_y(const MatrixXd &dA, const std::string& timestep, const std::string& batch_num,
+                              std::unordered_map<std::string, MatrixXd>& cache) {
     MatrixXd dZ = activation_y->activate_back(dA, MatrixXd::Zero(0, 0));
-    return linear_backward_y(dZ, timestep, cache);
+    return linear_backward_y(dZ, timestep, batch_num, cache);
 }
 
 std::pair<MatrixXd, MatrixXd> RNN::cell_backward_a(const MatrixXd &dA, const std::string &timestep,
-                              std::unordered_map<std::string, MatrixXd> &cache) {
-    MatrixXd dZ = dA.array() * (1 - cache["A_next" + timestep].array().square());
+                                                   const std::string& batch_num,
+                                                   std::unordered_map<std::string, MatrixXd> &cache) {
+    MatrixXd dZ = dA.array() * (1 - cache["A_next" + timestep + "_" + batch_num].array().square());
 
     MatrixXd dX = Wax.transpose() * dZ;
-    cache["dWax"] += dZ * cache["X" + timestep].transpose();
+    cache["dWax"] += dZ * cache["X" + timestep + "_" + batch_num].transpose();
 
     MatrixXd dAprev = Waa.transpose() * dZ;
-    cache["dWaa"] += dZ * cache["A_prev" + timestep].transpose();
+    cache["dWaa"] += dZ * cache["A_prev" + timestep + "_" + batch_num].transpose();
 
     cache["dba"] += dZ.rowwise().sum();
 
     return std::make_pair(dX, dAprev);
 }
 
-std::pair<MatrixXd, MatrixXd> RNN::cell_backward(const MatrixXd& dA, const MatrixXd& dA_next,  const std::string& timestep,
-                       std::unordered_map<std::string, MatrixXd>& cache) {
-    MatrixXd da = cell_backward_y(dA, timestep, cache);
-    return cell_backward_a(da + dA_next, timestep, cache);
+std::pair<MatrixXd, MatrixXd> RNN::cell_backward(const MatrixXd& dA, const MatrixXd& dA_next,
+                                                 const std::string& timestep, const std::string& batch_num,
+                                                 std::unordered_map<std::string, MatrixXd>& cache) {
+    MatrixXd da = cell_backward_y(dA, timestep, batch_num, cache);
+    return cell_backward_a(da + dA_next, timestep, batch_num, cache);
 }
 
 MatrixXd RNN::backward(const MatrixXd &dA, std::unordered_map<std::string, MatrixXd> &cache) {
     initialize_gradient_caches(cache);
-    MatrixXd dAprev_t = MatrixXd::Zero(hidden_size, 1);
-    MatrixXd dX(input_size, sequence_size);
-    MatrixXd dX_t;
-    for (int t = sequence_size - 1; t >= 0; --t) {
-        std::tie(dX_t, dAprev_t) = cell_backward(dA.col(t), dAprev_t, std::to_string(t), cache);
-        dX.col(t) = dX_t;
+
+    MatrixXd output(output_size, batch_sequence_length);
+
+    MatrixXd relevant_block;
+    MatrixXd dX(input_size * batch_size, batch_sequence_length);
+    for (int b = 0; b < batch_size; ++ b) {
+        MatrixXd dAprev_t = MatrixXd::Zero(hidden_size, 1);
+        MatrixXd dX_t;
+        for (int t = batch_sequence_length - 1; t >= 0; --t) {
+            relevant_block = dA.block(b * output_size, t, output_size, 1);
+            std::tie(dX_t, dAprev_t) = cell_backward(relevant_block, dAprev_t, std::to_string(t),
+                                                     std::to_string(b), cache);
+            dX.block(b * input_size, t, input_size, 1) = dX_t;
+        }
     }
 
     return dX;
