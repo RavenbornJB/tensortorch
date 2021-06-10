@@ -15,13 +15,10 @@ void Optimizers::BGD::optimize(Model *model, const MatrixXd &X_train, const Matr
     auto thread_cache = std::vector<std::unordered_map<std::string, MatrixXd>>(model->get_layers().size());
 
     for (int i = 0; i < num_epochs; ++i) {
-        MatrixXd Y_pred = model->forward(X_train, thread_cache, true);
+        MatrixXd Y_pred = model->forward(X_train, thread_cache);
         double cost = model->compute_cost(Y_pred, Y_train); // can print or something;
-        if (i % (num_epochs / 10) == 0 || i == num_epochs - 1) {
-            std::cout << "Cost at iteration " << i << ": " << cost << std::endl;
-        }
+        std::cout << "Cost at iteration " << i << ": " << cost << std::endl;
         model->backward(Y_pred, Y_train, thread_cache);
-
         update_parameters(model->get_layers(), thread_cache);
     }
 }

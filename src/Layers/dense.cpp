@@ -34,14 +34,8 @@ void Dense::constructor(int from_size, int to_size, Activations::Activation* act
             this->W(i, j) = dist(gen);
         }
     }
-}
 
-Dense::Dense(int from_size, int to_size, const std::string &activation_type, const std::string &parameter_initialization) {
-    constructor(from_size, to_size, Activations::make_activation(activation_type), parameter_initialization);
-}
-
-Dense::Dense(int from_size, int to_size, const std::string &activation_type) {
-    constructor(from_size, to_size, Activations::make_activation(activation_type), "normal");
+    data_size = 1;
 }
 
 Dense::Dense(int from_size, int to_size, Activations::Activation* activation_class, const std::string &parameter_initialization) {
@@ -57,8 +51,6 @@ Dense::Dense(int from_size, int to_size) {
 }
 
 MatrixXd Dense::linear(const MatrixXd &input) {
-//    std::cout << "X_train: " << std::endl;
-//    auto a = W * input;
     return (W * input).colwise() + b.col(0); // b is only 1 column, but we use col(0) to transform it to a Vector
 }
 

@@ -21,18 +21,24 @@ void Optimizers::SGD::optimize(Model *model, const MatrixXd &X_train, const Matr
     }
 
     auto thread_cache = std::vector<std::unordered_map<std::string, MatrixXd>>(model->get_layers().size());
+    double cost;
 
     for (int i = 0; i < num_epochs; i++) {
-        for (int j = 0; j + batch_size < X_train.cols(); j+=batch_size) {
-            MatrixXd Y_pred = model->forward(X_train.middleCols(j, batch_size), thread_cache, true);
-            double cost = model->compute_cost(Y_pred, Y_train.middleCols(j, batch_size)); // can print or something;
-            if ((i % (num_epochs / 10) == 0 || i == num_epochs - 1) && j==0) {
-                std::cout << "Cost at iteration " << i << ": " << cost << std::endl;
-            }
-            model->backward(Y_pred, Y_train.middleCols(j, batch_size), thread_cache);
+        if (model->get_layers()[0]->description[0] == "rnn") { // TODO temp fix, get RNN batches to work globally
+            MatrixXd Y_pred = model->forward(X_train, thread_cache);
+            cost = model->compute_cost(Y_pred, Y_train); // can print
+            std::cout << "Cost at epoch " << i << ": " << cost << std::endl;
+            model->backward(Y_pred, Y_train, thread_cache);
             update_parameters(model->get_layers(), thread_cache, momentum_cache);
+        } else {
+            for (int j = 0; j + batch_size < X_train.cols(); j += batch_size) {
+                MatrixXd Y_pred = model->forward(X_train.middleCols(j, batch_size), thread_cache);
+                cost = model->compute_cost(Y_pred, Y_train.middleCols(j, batch_size)); // can print
+                model->backward(Y_pred, Y_train.middleCols(j, batch_size), thread_cache);
+                update_parameters(model->get_layers(), thread_cache, momentum_cache);
+            }
+            std::cout << "Cost at epoch " << i << ": " << cost << std::endl;
         }
-
     }
 }
 

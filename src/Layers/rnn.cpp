@@ -6,8 +6,9 @@
 
 using namespace Layers;
 
-RNN::RNN(int input_size, int hidden_size, int output_size, Activations::Activation *activation_class_a,
-         Activations::Activation *activation_class_y, const std::string &parameter_initialization) {
+RNN::RNN(int input_size, int hidden_size, int output_size, bool return_sequences,
+         Activations::Activation *activation_class_a, Activations::Activation *activation_class_y,
+         const std::string &parameter_initialization) {
     this->description.emplace_back("rnn");
     this->Waa = Eigen::MatrixXd::Zero(hidden_size, hidden_size);
     this->Wax = Eigen::MatrixXd::Zero(hidden_size, input_size);
@@ -19,6 +20,7 @@ RNN::RNN(int input_size, int hidden_size, int output_size, Activations::Activati
     this->input_size = input_size;
     this->hidden_size = hidden_size;
     this->output_size = output_size;
+    this->return_sequences = return_sequences;
 
     this->activation_a = activation_class_a;
     this->activation_y = activation_class_y;
@@ -64,16 +66,18 @@ RNN::RNN(int input_size, int hidden_size, int output_size, Activations::Activati
     }
 
     initialized = false;
+    first_prediction = true;
+    data_size = batch_sequence_length;
 }
 
-MatrixXd RNN::cell_forward(const MatrixXd &input, MatrixXd &hidden, const std::string& timestep,
+MatrixXd RNN::cell_forward(const MatrixXd &input, const std::string& timestep,
                            const std::string& batch_num, std::unordered_map<std::string, MatrixXd> &cache) {
     cache["X" + timestep + "_" + batch_num] = input;
-    cache["A_prev" + timestep + "_" + batch_num] = hidden;
-    hidden = activation_a->activate(Waa * hidden + Wax * input + ba);
-    cache["A_next" + timestep + "_" + batch_num] = hidden;
+    cache["A_prev" + timestep + "_" + batch_num] = hidden_state;
+    hidden_state = activation_a->activate(Waa * hidden_state + Wax * input + ba);
+    cache["A_next" + timestep + "_" + batch_num] = hidden_state;
 
-    return activation_y->activate(Wya * hidden + by);
+    return activation_y->activate(Wya * hidden_state + by);
 }
 
 MatrixXd RNN::forward(const MatrixXd &input, std::unordered_map<std::string, MatrixXd> &cache) {
@@ -87,16 +91,20 @@ MatrixXd RNN::forward(const MatrixXd &input, std::unordered_map<std::string, Mat
 
     MatrixXd relevant_block;
     for (int b = 0; b < batch_size; ++ b) {
-        MatrixXd hidden = MatrixXd::Zero(hidden_size, 1);
+        hidden_state = MatrixXd::Zero(hidden_size, 1);
 
         for (int t = 0; t < batch_sequence_length; ++t) {
             relevant_block = input.block(b * input_size, t, input_size, 1);
             output.block(b * output_size, t, output_size, 1) =
-                    cell_forward(relevant_block, hidden, std::to_string(t), std::to_string(b), cache);
+                    cell_forward(relevant_block, std::to_string(t), std::to_string(b), cache);
         }
     }
 
-    return output;
+    if (return_sequences) {
+        return output;
+    } else {
+        return output.col(batch_sequence_length - 1);
+    }
 }
 
 MatrixXd RNN::linear_backward_y(const MatrixXd &dZ, const std::string& timestep, const std::string& batch_num,
@@ -146,7 +154,15 @@ MatrixXd RNN::backward(const MatrixXd &dA, std::unordered_map<std::string, Matri
         MatrixXd dAprev_t = MatrixXd::Zero(hidden_size, 1);
         MatrixXd dX_t;
         for (int t = batch_sequence_length - 1; t >= 0; --t) {
-            relevant_block = dA.block(b * output_size, t, output_size, 1);
+            if (!return_sequences) {
+                if (t == batch_sequence_length - 1) {
+                    relevant_block = dA;
+                } else {
+                    relevant_block = MatrixXd::Zero(output_size, 1);
+                }
+            } else {
+                relevant_block = dA.block(b * output_size, t, output_size, 1);
+            }
             std::tie(dX_t, dAprev_t) = cell_backward(relevant_block, dAprev_t, std::to_string(t),
                                                      std::to_string(b), cache);
             dX.block(b * input_size, t, input_size, 1) = dX_t;
@@ -157,11 +173,11 @@ MatrixXd RNN::backward(const MatrixXd &dA, std::unordered_map<std::string, Matri
 }
 
 void RNN::update_parameters(std::unordered_map<std::string, MatrixXd>& cache) {
-    Waa -= cache["dWaa"] * 0.01;
-    Wax -= cache["dWax"] * 0.01;
-    Wya -= cache["dWya"] * 0.01;
-    ba -= cache["dba"] * 0.01;
-    by -= cache["dby"] * 0.01;
+    Waa -= cache["dWaa"];
+    Wax -= cache["dWax"];
+    Wya -= cache["dWya"];
+    ba -= cache["dba"];
+    by -= cache["dby"];
 }
 
 

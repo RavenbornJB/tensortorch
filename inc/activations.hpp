@@ -70,8 +70,6 @@ namespace Activations { //TODO change inline
             return dA.array() * Z.unaryExpr([](double x) { return (double) (x > 0); }).array();
         }
     };
-
-    Activation* make_activation(const std::string& activation_type);
 }
 
 #endif //NEURALNET_LIB_ACTIVATIONS_HPP

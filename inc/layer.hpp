@@ -23,6 +23,8 @@ namespace Layers {
         std::vector<std::string> description;
         std::vector<std::string> gradients;
 
+        int data_size;
+
         virtual MatrixXd forward(const MatrixXd &inp, std::unordered_map<std::string, MatrixXd> &cache) { return inp; };
 
         virtual MatrixXd
@@ -31,7 +33,9 @@ namespace Layers {
         virtual void update_parameters(std::unordered_map<std::string, MatrixXd> &cache) {};
 
         // layer_shapes uses "d" in front of keys like in gradients, because this is used in the optimizer for gradients
-        virtual std::unordered_map<std::string, std::vector<int>> layer_shapes() {};
+        virtual std::unordered_map<std::string, std::vector<int>> layer_shapes() {
+            return *(new std::unordered_map<std::string, std::vector<int>>);
+        };
     };
 
     class Dense: public Layer {
@@ -47,8 +51,6 @@ namespace Layers {
         MatrixXd linear_backward(const MatrixXd& dZ, std::unordered_map<std::string, MatrixXd>& cache);
 
     public:
-        Dense(int from_size, int to_size, const std::string &activation_type, const std::string &parameter_initialization);
-        Dense(int from_size, int to_size, const std::string &activation_type);
         Dense(int from_size, int to_size, Activations::Activation* activation, const std::string &parameter_initialization);
         Dense(int from_size, int to_size, Activations::Activation* activation);
         Dense(int from_size, int to_size);
@@ -69,14 +71,18 @@ namespace Layers {
         int input_size;
         int hidden_size;
         int output_size;
+        bool return_sequences;
 
         int batch_size;
         int batch_sequence_length;
 
+        MatrixXd hidden_state;
+        bool first_prediction;
+
         Activations::Activation* activation_a;
         Activations::Activation* activation_y;
 
-        MatrixXd cell_forward(const MatrixXd& input, MatrixXd& hidden, const std::string& timestep,
+        MatrixXd cell_forward(const MatrixXd& input, const std::string& timestep,
                               const std::string& batch_num, std::unordered_map<std::string, MatrixXd>& cache);
 
         MatrixXd linear_backward_y(const MatrixXd &dZ, const std::string& timestep, const std::string& batch_num,
@@ -94,8 +100,9 @@ namespace Layers {
         bool initialized;
 
     public:
-        RNN(int input_size, int hidden_size, int output_size, Activations::Activation *activation_class_a,
-            Activations::Activation *activation_class_y, const std::string &parameter_initialization);
+        RNN(int input_size, int hidden_size, int output_size, bool return_sequences,
+            Activations::Activation *activation_class_a, Activations::Activation *activation_class_y,
+            const std::string &parameter_initialization);
 
         MatrixXd forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) override;
         MatrixXd backward(const MatrixXd& dA, std::unordered_map<std::string, MatrixXd>& cache) override;

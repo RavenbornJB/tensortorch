@@ -16,7 +16,7 @@ void optimize_task(Model *model, const MatrixXd &X_train, const MatrixXd &Y_trai
                    std::vector<std::vector<std::unordered_map<std::string, MatrixXd> > > &threads_caches,
                    std::mutex &m) {
     auto thread_cache = std::vector<std::unordered_map<std::string, MatrixXd>>(model->get_layers().size());
-    MatrixXd Y_pred = model->forward(X_train, thread_cache, false);
+    MatrixXd Y_pred = model->forward(X_train, thread_cache);
     model->backward(Y_pred, Y_train, thread_cache);
     {
         std::lock_guard<std::mutex> lg{m};

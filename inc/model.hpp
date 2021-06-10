@@ -17,10 +17,11 @@ private:
 
     Losses::Loss* loss;
     Optimizers::Optimizer* optimizer;
+    bool compiled;
 
 public:
     //TODO constructor options
-    Model(std::vector<Layers::Layer*> &layers);
+    explicit Model(std::vector<Layers::Layer*> &layers);
 
     void compile(Losses::Loss* loss, Optimizers::Optimizer* optimizer);
 
