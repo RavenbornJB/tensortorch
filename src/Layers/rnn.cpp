@@ -6,9 +6,9 @@
 
 using namespace Layers;
 
-RNN::RNN(int input_size, int hidden_size, int output_size, bool return_sequences,
+RNN::RNN(int input_size, int hidden_size, int output_size,
          Activations::Activation *activation_class_a, Activations::Activation *activation_class_y,
-         const std::string &parameter_initialization) {
+         const std::string &parameter_initialization, bool return_sequences) {
     this->description.emplace_back("rnn");
     this->Waa = Eigen::MatrixXd::Zero(hidden_size, hidden_size);
     this->Wax = Eigen::MatrixXd::Zero(hidden_size, input_size);
@@ -66,7 +66,6 @@ RNN::RNN(int input_size, int hidden_size, int output_size, bool return_sequences
     }
 
     initialized = false;
-    first_prediction = true;
     data_size = batch_sequence_length;
 }
 
@@ -143,20 +142,21 @@ std::pair<MatrixXd, MatrixXd> RNN::cell_backward(const MatrixXd& dA, const Matri
     return cell_backward_a(da + dA_next, timestep, batch_num, cache);
 }
 
-MatrixXd RNN::backward(const MatrixXd &dA, std::unordered_map<std::string, MatrixXd> &cache) {
+MatrixXd RNN::backward(const MatrixXd &dA, std::unordered_map<std::string, MatrixXd> &cache,
+                       double regularization_parameter) {
     initialize_gradient_caches(cache);
 
     MatrixXd output(output_size, batch_sequence_length);
-
     MatrixXd relevant_block;
     MatrixXd dX(input_size * batch_size, batch_sequence_length);
-    for (int b = 0; b < batch_size; ++ b) {
+
+    for (int b = 0; b < batch_size; ++b) {
         MatrixXd dAprev_t = MatrixXd::Zero(hidden_size, 1);
         MatrixXd dX_t;
         for (int t = batch_sequence_length - 1; t >= 0; --t) {
             if (!return_sequences) {
                 if (t == batch_sequence_length - 1) {
-                    relevant_block = dA;
+                    relevant_block = dA.block(b * output_size, 0, output_size, 1);
                 } else {
                     relevant_block = MatrixXd::Zero(output_size, 1);
                 }
@@ -197,4 +197,3 @@ std::unordered_map<std::string, std::vector<int>> RNN::layer_shapes() {
             {"dby", {(int) by.rows(), (int) by.cols()}}
     };
 }
-

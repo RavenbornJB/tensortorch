@@ -6,13 +6,23 @@
 #include "optimizers.hpp"
 
 
-Model::Model(std::vector<Layers::Layer*> &layers) {
+Model::Model(std::vector<Layers::Layer*> &layers, double regularization_parameter) {
     this->L = (int) layers.size();
     this->layers = layers;
+    this->regularization_parameter = regularization_parameter;
 
     this->compiled = false;
 }
 
+void Model::save(const std::string& filename) {
+    // clear file
+    std::ofstream file(filename, std::ios::out | std::ios::trunc);
+    file.close();
+
+    for (const auto& layer: layers) {
+//        layer.save(filename);
+    }
+}
 
 MatrixXd Model::forward(const MatrixXd &input, std::vector<std::unordered_map<std::string, MatrixXd>> &thread_cache) {
     if (!compiled) {
@@ -35,10 +45,11 @@ double Model::compute_cost(const MatrixXd &y_pred, const MatrixXd &y_true) {
 }
 
 
-void Model::backward(const MatrixXd &y_pred, const MatrixXd &y_true, std::vector<std::unordered_map<std::string, MatrixXd>> &thread_cache) {
+void Model::backward(const MatrixXd &y_pred, const MatrixXd &y_true,
+                     std::vector<std::unordered_map<std::string, MatrixXd>> &thread_cache) {
     MatrixXd dA = this->loss->loss_back(y_pred, y_true);
     for (int l = L - 1; l >= 0; --l) {
-        dA = layers[l]->backward(dA, thread_cache[l]);
+        dA = layers[l]->backward(dA, thread_cache[l], regularization_parameter);
     }
 }
 

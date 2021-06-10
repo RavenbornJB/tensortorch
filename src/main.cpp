@@ -139,22 +139,26 @@ int main() {
     x.col(2) << 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1;
     x.col(3) << 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
 
-    MatrixXd y_true(20, 4);
-    MatrixXd empty_token = MatrixXd::Zero(20, 1);
-    y_true << x.block<20, 3>(0, 1), empty_token;
+    MatrixXd y_true(10, 1);
+    y_true << 0, 0, 1, 0, 0, 1, 0, 0, 0, 0;
+//    MatrixXd y_true(20, 4);
+//    MatrixXd empty_token = MatrixXd::Zero(20, 1);
+//    y_true << x.block<20, 3>(0, 1), empty_token;
 
     std::vector<Layers::Layer *> layers = {
-            new Layers::RNN(10, 16, 10, true,
-            new Activations::Tanh,new Activations::Softmax, "he")
+            new Layers::RNN(10, 16, 5,
+            new Activations::Tanh, new Activations::Softmax,
+            "he", false)
     };
 
-    Model model(layers);
+    Model model(layers, 0.01);
     model.compile(new Losses::CategoricalCrossentropy,
-                  new Optimizers::Adam(1, 0.01, 0.9, 0.999));
+                  new Optimizers::RMSprop(1, 0.01, 0.999));
 
-    model.fit(x, y_true, 10000);
+    model.fit(x, y_true, 1000);
+
+    model.save("rnn-test");
 
     auto res = model.predict(x.block(0, 0, 10, 4));
-    std::cout << res << std::endl;
     std::cout << prediction_matrix_to_vector(res, 0.5) << std::endl;
 }

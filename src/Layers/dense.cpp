@@ -6,14 +6,15 @@
 
 using namespace Layers;
 
-void Dense::constructor(int from_size, int to_size, Activations::Activation* activation_class, const std::string &parameter_initialization) {
+Dense::Dense(int from_size, int to_size, Activations::Activation* activation,
+             const std::string &parameter_initialization) {
     this->description.emplace_back("dense");
     this->W = Eigen::MatrixXd::Zero(to_size, from_size);
     this->b = Eigen::MatrixXd::Zero(to_size, 1);
     this->gradients = {"dW", "db"};
 
-    this->activation = activation_class;
-    this->description.push_back(activation_class->name);
+    this->activation = activation;
+    this->description.push_back(activation->name);
 
     std::default_random_engine gen{static_cast<long unsigned int>(time(nullptr))};
     double stddev;
@@ -38,18 +39,6 @@ void Dense::constructor(int from_size, int to_size, Activations::Activation* act
     data_size = 1;
 }
 
-Dense::Dense(int from_size, int to_size, Activations::Activation* activation_class, const std::string &parameter_initialization) {
-    constructor(from_size, to_size, activation_class, parameter_initialization);
-}
-
-Dense::Dense(int from_size, int to_size, Activations::Activation* activation_class) {
-    constructor(from_size, to_size, activation_class, "normal");
-}
-
-Dense::Dense(int from_size, int to_size) {
-    constructor(from_size, to_size, new Activations::Linear, "normal");
-}
-
 MatrixXd Dense::linear(const MatrixXd &input) {
     return (W * input).colwise() + b.col(0); // b is only 1 column, but we use col(0) to transform it to a Vector
 }
@@ -60,14 +49,21 @@ MatrixXd Dense::forward(const MatrixXd& input, std::unordered_map<std::string, M
     return activation->activate(cache["Z"]);
 }
 
-MatrixXd Dense::linear_backward(const MatrixXd &dZ, std::unordered_map<std::string, MatrixXd>& cache) {
+MatrixXd Dense::linear_backward(const MatrixXd &dZ, std::unordered_map<std::string, MatrixXd>& cache,
+                                double regularization_parameter) {
     cache["dW"] = (dZ * cache["A_prev"].transpose()) / dZ.cols();
     cache["db"] = dZ.rowwise().sum() / dZ.cols();
+
+    if (regularization_parameter != -1) {
+        cache["dW"] += W * regularization_parameter / dZ.cols();
+    }
+
     return W.transpose() * dZ;
 }
 
-MatrixXd Dense::backward(const MatrixXd &dA, std::unordered_map<std::string, MatrixXd>& cache) {
-    return linear_backward(activation->activate_back(dA, cache["Z"]), cache);
+MatrixXd Dense::backward(const MatrixXd &dA, std::unordered_map<std::string, MatrixXd>& cache,
+                         double regularization_parameter) {
+    return linear_backward(activation->activate_back(dA, cache["Z"]), cache, regularization_parameter);
 }
 
 void Dense::update_parameters(std::unordered_map<std::string, MatrixXd>& cache) {

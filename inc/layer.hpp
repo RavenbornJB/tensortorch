@@ -27,8 +27,8 @@ namespace Layers {
 
         virtual MatrixXd forward(const MatrixXd &inp, std::unordered_map<std::string, MatrixXd> &cache) { return inp; };
 
-        virtual MatrixXd
-        backward(const MatrixXd &inp, std::unordered_map<std::string, MatrixXd> &cache) { return inp; };
+        virtual MatrixXd backward(const MatrixXd &inp, std::unordered_map<std::string, MatrixXd> &cache,
+                                  double regularization_parameter) { return inp; };
 
         virtual void update_parameters(std::unordered_map<std::string, MatrixXd> &cache) {};
 
@@ -43,19 +43,19 @@ namespace Layers {
         MatrixXd W;
         MatrixXd b;
 
-        void constructor(int from_size, int to_size, Activations::Activation* activation, const std::string &parameter_initialization);
-
         Activations::Activation* activation;
 
         MatrixXd linear(const MatrixXd& input);
-        MatrixXd linear_backward(const MatrixXd& dZ, std::unordered_map<std::string, MatrixXd>& cache);
+        MatrixXd linear_backward(const MatrixXd& dZ, std::unordered_map<std::string, MatrixXd>& cache,
+                                 double reqularization_parameter);
 
     public:
-        Dense(int from_size, int to_size, Activations::Activation* activation, const std::string &parameter_initialization);
-        Dense(int from_size, int to_size, Activations::Activation* activation);
-        Dense(int from_size, int to_size);
+        Dense(int from_size, int to_size,
+              Activations::Activation* activation=new Activations::Linear,
+              const std::string &parameter_initialization="he");
         MatrixXd forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) override;
-        MatrixXd backward(const MatrixXd& dA, std::unordered_map<std::string, MatrixXd>& cache) override;
+        MatrixXd backward(const MatrixXd& dA, std::unordered_map<std::string, MatrixXd>& cache,
+                          double regularization_parameter) override;
         void update_parameters(std::unordered_map<std::string, MatrixXd>& cache) override;
         std::unordered_map<std::string, std::vector<int>> layer_shapes() override;
     };
@@ -77,7 +77,6 @@ namespace Layers {
         int batch_sequence_length;
 
         MatrixXd hidden_state;
-        bool first_prediction;
 
         Activations::Activation* activation_a;
         Activations::Activation* activation_y;
@@ -100,12 +99,13 @@ namespace Layers {
         bool initialized;
 
     public:
-        RNN(int input_size, int hidden_size, int output_size, bool return_sequences,
+        RNN(int input_size, int hidden_size, int output_size,
             Activations::Activation *activation_class_a, Activations::Activation *activation_class_y,
-            const std::string &parameter_initialization);
+            const std::string &parameter_initialization="he", bool return_sequences=true);
 
         MatrixXd forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) override;
-        MatrixXd backward(const MatrixXd& dA, std::unordered_map<std::string, MatrixXd>& cache) override;
+        MatrixXd backward(const MatrixXd& dA, std::unordered_map<std::string, MatrixXd>& cache,
+                          double regularization_parameter) override;
         void update_parameters(std::unordered_map<std::string, MatrixXd>& cache) override;
         std::unordered_map<std::string, std::vector<int>> layer_shapes() override;
     };
