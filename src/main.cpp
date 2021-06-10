@@ -150,9 +150,9 @@ int main() {
 
     Model model(layers);
     model.compile(new Losses::CategoricalCrossentropy,
-                  new Optimizers::RMSprop(1, 0.01, 0.999));
+                  new Optimizers::Adam(1, 0.01, 0.9, 0.999));
 
-    model.fit(x, y_true, 1000);
+    model.fit(x, y_true, 10000);
 
     auto res = model.predict(x.block(0, 0, 10, 4));
     std::cout << res << std::endl;

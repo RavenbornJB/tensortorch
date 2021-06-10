@@ -61,14 +61,17 @@ namespace Optimizers {
     private:
         double learning_rate;
         int batch_size;
-        double beta;
+        double beta1;
+        double beta2;
         double epsilon;
     public:
         Adam(int _batch_size,  double _learning_rate, double _beta1, double _beta2, double epsilon=std::pow(10, -7));
         void optimize(Model *model, const MatrixXd &X_train, const MatrixXd &Y_train, int num_epochs) override;
         void update_parameters(std::vector<Layers::Layer *> &layers,
                                std::vector<std::unordered_map<std::string, MatrixXd>> &cache,
-                               std::vector<std::unordered_map<std::string, MatrixXd>> &rms_cache);
+                               std::vector<std::unordered_map<std::string, MatrixXd>> &momentum_cache,
+                               std::vector<std::unordered_map<std::string, MatrixXd>> &rms_cache,
+                               int epoch);
     };
 
     class Parallel: public Optimizer {

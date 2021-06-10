@@ -12,6 +12,8 @@ Optimizers::SGD::SGD(int _batch_size, double _learning_rate, double _momentum) {
 void Optimizers::SGD::optimize(Model *model, const MatrixXd &X_train, const MatrixXd &Y_train, int num_epochs) {
     std::vector<Layers::Layer *> layers = model->get_layers();
 
+    auto thread_cache = std::vector<std::unordered_map<std::string, MatrixXd>>(model->get_layers().size());
+
     auto momentum_cache = *(new std::vector<std::unordered_map<std::string, MatrixXd>>(layers.size()));
     for (int l = 0; l < layers.size(); ++l) {
         std::unordered_map<std::string, std::vector<int>> layer_shapes = layers[l]->layer_shapes();
@@ -20,9 +22,7 @@ void Optimizers::SGD::optimize(Model *model, const MatrixXd &X_train, const Matr
         }
     }
 
-    auto thread_cache = std::vector<std::unordered_map<std::string, MatrixXd>>(model->get_layers().size());
     double cost;
-
     for (int i = 0; i < num_epochs; i++) {
         if (model->get_layers()[0]->description[0] == "rnn") { // TODO temp fix, get RNN batches to work globally
             MatrixXd Y_pred = model->forward(X_train, thread_cache);

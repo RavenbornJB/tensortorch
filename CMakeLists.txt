@@ -25,6 +25,7 @@ add_executable(tensortorch
         src/main.cpp
         src/Layers/dense.cpp src/Layers/rnn.cpp
         src/Optimizers/BGD.cpp src/Optimizers/SGD.cpp
-        src/Optimizers/RMSprop.cpp src/Optimizers/Parallel.cpp
+        src/Optimizers/RMSprop.cpp src/Optimizers/Adam.cpp
+        src/Optimizers/Parallel.cpp
         src/model.cpp)
 target_link_libraries(tensortorch Threads::Threads)
