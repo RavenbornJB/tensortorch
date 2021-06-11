@@ -65,7 +65,7 @@ void Model::save(const std::string& filename) {
     }
 
     // clear file and write model metadata
-    std::ofstream file(filename + ".ttwf", std::ios::out | std::ios::trunc);
+    std::ofstream file("models/" + filename + ".ttwf", std::ios::out | std::ios::trunc);
     file << L << " " << loss->get_name() << " " << optimizer->get_name() << " " << regularization_parameter << "\n";
     for (double param: optimizer->get_params()) {
         file << param << " ";
@@ -74,12 +74,12 @@ void Model::save(const std::string& filename) {
     file.close();
 
     for (const auto& layer: layers) {
-        layer->save(filename + ".ttwf");
+        layer->save("models/" + filename + ".ttwf");
     }
 }
 
 Model Model::Load(const std::string& filename) {
-    std::ifstream file(filename + ".ttwf");
+    std::ifstream file("models/" + filename + ".ttwf");
 
     if (!file.is_open()) {
         throw std::runtime_error("Load file cannot be opened or does not exist");

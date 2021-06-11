@@ -1,84 +1,114 @@
 #include <iostream>
 #include <fstream>
 
-#include "layer.hpp"
-#include "losses.hpp"
-#include "model.hpp"
-#include "optimizers.hpp"
+#include "tensortorch.hpp"
 
-typedef
-std::pair<std::vector<std::vector<double>>, std::vector<std::vector<double>>>
-        datatype;
 
-datatype get_data(const std::string &filename) {
-    std::ifstream datafile(filename);
-    if (!datafile.is_open()) throw std::invalid_argument("Incorrect file name");
-    size_t num_points;
-    datafile >> num_points;
+std::unordered_map<int, std::string> read_vocabulary(const std::string& filename) {
+    std::ifstream file(filename);
 
-    datatype data;
-    data.first.emplace_back();
-    data.first.emplace_back();
-    data.second.emplace_back();
-    double x, y, labele;
-    for (size_t i = 0; i < num_points; ++i) {
-//        if (i >= 5) {
-//            continue;
-//        }
-        datafile >> x >> y;
-        data.first[0].push_back(x);
-        data.first[1].push_back(y);
-        data.second[0].push_back(0);
+    if (!file.is_open()) {
+        throw std::runtime_error("File cannot be opened");
     }
 
-    return data;
-}
-
-
-datatype get_dat_shuffled(const std::string &filename) {
-    std::ifstream datafile(filename);
-    if (!datafile.is_open()) throw std::invalid_argument("Incorrect file name");
-    size_t num_points;
-    datafile >> num_points;
-
-    datatype data;
-    data.first.emplace_back();
-    data.first.emplace_back();
-    data.second.emplace_back();
-    double x, y, label;
-    for (size_t i = 0; i < num_points; ++i) {
-
-        datafile >> x >> y >> label;
-        data.first[0].push_back(x);
-        data.first[1].push_back(y);
-        data.second[0].push_back(label);
+    std::unordered_map<int, std::string> vocabulary;
+    std::string token;
+    std::string id;
+    std::string word;
+    while (getline(file, token)) {
+        std::istringstream iss(token);
+        iss >> id;
+        iss >> word;
+        vocabulary[std::stoi(id)] = word;
     }
-//    for (size_t i = 0; i < num_points; ++i) {
-////        if (i >= 5) {
-////            continue;
-////        }
-//        datafile >> x >> y;
-//        data.first[0].push_back(x);
-//        data.first[1].push_back(y);
-//        data.second[0].push_back(1);
-//    }
-    return data;
+
+    return vocabulary;
 }
 
-double compare(const MatrixXd &prediction, const MatrixXd &Y) {
-    size_t m = Y.cols();
-    double coincide = 0.;
-    for (size_t i = 0; i < m; ++i) {
-        coincide += (double) ((prediction(0, i) >= 0.5) == Y(0, i));
+std::pair<std::vector<std::vector<int>>, std::vector<int>> get_imdb_data(const std::string& filename) {
+    std::ifstream file(filename);
+
+    if (!file.is_open()) {
+        throw std::runtime_error("File cannot be opened");
     }
-    return coincide / m;
+
+    std::vector<std::vector<int>> reviews;
+    std::vector<int> labels;
+
+    std::string token;
+    getline(file, token);
+    int num_reviews = std::stoi(token);
+
+    for (int i = 0; i < num_reviews; ++i) {
+        std::vector<int> review;
+        int label;
+
+        getline(file, token);
+        std::istringstream iss(token);
+        std::string review_word;
+        while(iss >> review_word) {
+            review.push_back(std::stoi(review_word));
+        }
+        getline(file, token);
+        label = std::stoi(token);
+
+        reviews.emplace_back(review);
+        labels.emplace_back(label);
+    }
+
+    return std::make_pair(reviews, labels);
 }
 
-MatrixXd matrix_from_vector2d(std::vector<std::vector<double> > &v) {
-    MatrixXd mat(v.size(), v[0].size());
-    for (int i = 0; i < mat.rows(); i++)
-        mat.row(i) = Eigen::VectorXd::Map(&v[i][0], v[i].size());
-    return mat;
+MatrixXd int_vector_to_one_hot_matrix(const std::vector<int>& v, int len, int vocab_size) {
+    MatrixXd m = MatrixXd::Zero(vocab_size, len);
+
+    for (int c = 0; c < v.size(); ++c) {
+        m(v[c], c) = 1;
+    }
+
+    return m;
+}
+
+std::vector<MatrixXd> create_imdb_matrix(const std::vector<std::vector<int>>& reviews, int vocab_size, int minibatch_size) {
+    std::vector<MatrixXd> res;
+
+    for (int b = 0; b < reviews.size() / minibatch_size; ++b) {
+        int max_len = 0;
+        for (int r = 0; r < minibatch_size; ++r) {
+            max_len = std::max(max_len, (int) reviews[b * minibatch_size + r].size());
+        }
+        MatrixXd minibatch(vocab_size * minibatch_size, max_len);
+
+        for (int r = 0; r < minibatch_size; ++r) {
+            auto sentence = int_vector_to_one_hot_matrix(reviews[b * minibatch_size + r], max_len, vocab_size);
+
+            for (int i = 0; i < vocab_size; ++i) {
+                for (int j = 0; j < max_len; ++j) {
+                    minibatch(r * vocab_size + i, j) = sentence(i, j);
+                }
+            }
+        }
+
+        res.push_back(minibatch);
+    }
+
+    return res;
+}
+
+std::vector<MatrixXd> create_imdb_label_matrix(const std::vector<int>& labels, int minibatch_size) {
+    std::vector<MatrixXd> res;
+
+    for (int b = 0; b < labels.size() / minibatch_size; ++b) {
+        MatrixXd label_matrix(minibatch_size, 1);
+
+        for (int r = 0; r < minibatch_size; ++r) {
+            label_matrix(r, 0) = labels[b * minibatch_size + r];
+        }
+
+        res.push_back(label_matrix);
+    }
+
+    return res;
 }
 
 int prediction_to_index(const Eigen::VectorXd& input, double threshold) {
@@ -96,74 +126,150 @@ Eigen::VectorXd prediction_matrix_to_vector(const MatrixXd& input, double thresh
     return res;
 }
 
+void matrix_to_file(const MatrixXd& matrix, const std::string& filename) {
+    std::ofstream file(filename);
+
+    file << std::to_string(matrix.rows()) << " " << std::to_string(matrix.cols()) << "\n";
+    file << matrix;
+}
+
+MatrixXd matrix_from_file(const std::string& filename) {
+    std::ifstream file(filename);
+
+    if (!file.is_open()) {
+        throw std::runtime_error("File cannot be opened");
+    }
+
+    int rows;
+    int cols;
+    file >> rows >> cols;
+
+    MatrixXd m(rows, cols);
+
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            file >> m(i, j);
+        }
+    }
+
+    return m;
+}
+
+MatrixXd get_sentence(const MatrixXd& sentences, int sentence_num) {
+    return sentences.block(600 * sentence_num, 0, 600, 30);
+}
+
 int main() {
+//    auto vocabulary = read_vocabulary("data_generation/vocabulary.txt");
 //
-//    auto train_data = get_data("../data_generation/shuffled_data_noisy_4_point.txt");
+//    auto train_data = get_imdb_data("data_generation/data_imdb_train.txt");
+//    auto X_train = train_data.first;
+//    auto Y_train = train_data.second;
+//    auto test_data = get_imdb_data("data_generation/data_imdb_test.txt");
+//    auto X_test = test_data.first;
+//    auto Y_test = test_data.second;
 //
-//    MatrixXd X_train_pts = matrix_from_vector2d(train_data.first);
-//    MatrixXd Y_train_pts = matrix_from_vector2d(train_data.second);
-//    auto test_data = get_data("../data_generation/data_linear_test.txt");
-//    MatrixXd X_test_pts = matrix_from_vector2d(test_data.first);
-//    MatrixXd Y_test_pts = matrix_from_vector2d(test_data.second);
+//    int vocab_size = 800;
 //
+//    int minibatches = 200;
+//    int minibatch_size = 10;
+//    std::cout << "Creating X_train..." << std::endl;
+//    std::vector<MatrixXd> X_train_minibatches = create_imdb_matrix(X_train, vocab_size, minibatch_size);
+//    std::cout << "Creating Y_train..." << std::endl;
+//    std::vector<MatrixXd> Y_train_minibatches = create_imdb_label_matrix(Y_train, minibatch_size);
 //
-//    std::vector<Layers::Layer *> layers = {
-//            new Layers::Dense(2, 5, "tanh", "he"),
-//            new Layers::Dense(5, 5, "relu", "he"),
-//            new Layers::Dense(5, 1, "sigmoid", "he")
+//    // --- HYPERPARAMETERS ---
+//
+//    int hidden_size = 50;
+//    int num_epochs = 5;
+//    double reg_param = -1;
+//    double learning_rate = 0.001;
+////    double momentum = 0.9;
+//    double beta1 = 0.9;
+//    double beta2 = 0.999;
+//
+//    // --- MODEL CREATION ---
+//
+//    std::vector<Layers::Layer*> layers = {
+//            new Layers::RNN(vocab_size, hidden_size, 1,
+//                        new Activations::Tanh, new Activations::Sigmoid,
+//                        "he", false)
 //    };
 //
-//    Model model(layers);
+//    Model rnn_model(layers, reg_param);
 //
+//    rnn_model.compile(
+//            new Losses::BinaryCrossentropy,
+//            new Optimizers::Adam(minibatch_size, learning_rate, beta1, beta2)
+//            );
 //
-//    model.compile(
-//            new Losses::BinaryCrossentropy(),
-////            new Optimizers::BGD(0.01)
-////            new Optimizers::SGD(128, 0.01, 0.999)
-////with higher learning rate gradient vanishing
-////            new Optimizers::RMSprop(64, 0.00001, 0.999)
-//            new Optimizers::Parallel(128, 0.1)
-//    );
+//    for (int epoch = 0; epoch < num_epochs; ++ epoch) {
+//        std::cout << "Epoch " << epoch << ":" << std::endl;
+//        for (int i = 0; i < minibatches; ++i) {
+//            rnn_model.fit(X_train_minibatches[i], Y_train_minibatches[i], 1);
+//        }
+//    }
 //
-//    //TODO fix problem with number of epochs( <10)
-//    model.fit(X_train_pts, Y_train_pts, 5000);
-//
-//    std::cout << "cols: " << Y_train_pts.cols() << "\nrows: " << Y_train_pts.rows() << std::endl;
-//
-//    MatrixXd train_prediction = model.predict(X_train_pts);
-//    std::cout << "Accuracy on the train set: " << compare(train_prediction, Y_train_pts) * 100 << "%" << std::endl;
+//    rnn_model.save("models/sentiment-analysis");
 
-//    MatrixXd x(20, 4);
-//    x.col(0) << 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0;
-//    x.col(1) << 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-//    x.col(2) << 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1;
-//    x.col(3) << 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-
-//    MatrixXd y_true(10, 1);
-//    y_true << 0, 0, 1, 0, 0, 1, 0, 0, 0, 0;
-//    MatrixXd y_true(20, 4);
-//    MatrixXd empty_token = MatrixXd::Zero(20, 1);
-//    y_true << x.block<20, 3>(0, 1), empty_token;
-
-//    std::vector<Layers::Layer *> layers = {
-//            new Layers::Dense(2, 5),
-//            new Layers::Dense(5, 3, new Activations::Relu),
-//            new Layers::Dense(3, 1, new Activations::Sigmoid, "xavier")
-//            new Layers::RNN(10, 16, 5,
-//            new Activations::Tanh, new Activations::Softmax,
+//    int vocab_size = 600;
+//    int words = 30;
+//    int sentences = 150;
+//
+//    MatrixXd X_train = MatrixXd::Zero(sentences * vocab_size, words);
+//    MatrixXd Y_train = MatrixXd::Zero(sentences, 1);
+//
+//    std::random_device rand_dev;
+//    std::mt19937 gen(rand_dev());
+//
+//    std::uniform_int_distribution<int> dist(0, vocab_size - 1);
+//    std::uniform_int_distribution<int> dist_words(words / 2 + 1, words);
+//    for (int s = 0; s < sentences; ++s) {
+//        for (int w = 0; w < dist_words(gen); ++w) {
+//            X_train(s * vocab_size + dist(gen), w) = 1;
+//        }
+//    }
+//
+//    std::uniform_int_distribution<int> dist_y(0, 1);
+//    for (int s = 0; s < sentences; ++s) {
+//        Y_train(s, 0) = dist_y(gen);
+//    }
+//
+//    std::vector<Layers::Layer*> layers = {
+//        new Layers::RNN(vocab_size, 50, 1,
+//            new Activations::Tanh, new Activations::Sigmoid,
 //            "he", false)
 //    };
+//
+//    Model rnn_model(layers, 0.01);
+//
+//    rnn_model.compile(
+//            new Losses::BinaryCrossentropy,
+//            new Optimizers::Adam(1, 0.01, 0.9, 0.999)
+//        );
+//
+//    rnn_model.fit(X_train, Y_train, 200);
+//
+//    rnn_model.save("randomized-sentiment-analysis");
+//
+//    matrix_to_file(X_train, "models/randomized-sentiment-analysis-X_train");
+//    matrix_to_file(Y_train, "models/randomized-sentiment-analysis-Y_train");
+    MatrixXd X = matrix_from_file("models/randomized-sentiment-analysis-X_train");
+    MatrixXd Y = matrix_from_file("models/randomized-sentiment-analysis-Y_train");
 
-//    Model model(layers, 0.01);
-//    model.compile(new Losses::CategoricalCrossentropy,
-//                  new Optimizers::RMSprop(1, 0.01, 0.999));
+    Model model = Model::Load("randomized-sentiment-analysis");
 
-//    model.fit(x, y_true, 10000);
+    int sentences = 150;
 
-//    model.save("normal-test");
-//    model.save("rnn-test");
-    Model model = Model::Load("normal-test");
+    int correct = 0;
+    for (int s = 0; s < sentences; ++s) {
+        MatrixXd res = model.predict(get_sentence(X, s));
 
-//    auto res = model.predict(x.block(0, 0, 10, 4));
-//    std::cout << prediction_matrix_to_vector(res, 0.5) << std::endl;
+        int prediction = (int) std::round(res(0, 0));
+        int ground_truth = (int) Y(s, 0);
+
+        if (prediction == ground_truth) ++correct;
+    }
+
+    std::cout << "Accuracy: " << correct * 100. / sentences << "%" << std::endl;
 }

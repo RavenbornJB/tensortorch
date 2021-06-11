@@ -88,7 +88,8 @@ MatrixXd RNN::cell_forward(const MatrixXd &input, const std::string& timestep,
     hidden_state = activation_a->activate(Waa * hidden_state + Wax * input + ba);
     cache["A_next" + timestep + "_" + batch_num] = hidden_state;
 
-    return activation_y->activate(Wya * hidden_state + by);
+    cache["Z" + timestep + "_" + batch_num] = Wya * hidden_state + by;
+    return activation_y->activate(cache["Z" + timestep + "_" + batch_num]);
 }
 
 MatrixXd RNN::forward(const MatrixXd &input, std::unordered_map<std::string, MatrixXd> &cache) {
@@ -127,7 +128,7 @@ MatrixXd RNN::linear_backward_y(const MatrixXd &dZ, const std::string& timestep,
 
 MatrixXd RNN::cell_backward_y(const MatrixXd &dA, const std::string& timestep, const std::string& batch_num,
                               std::unordered_map<std::string, MatrixXd>& cache) {
-    MatrixXd dZ = activation_y->activate_back(dA, MatrixXd::Zero(0, 0));
+    MatrixXd dZ = activation_y->activate_back(dA, cache["Z" + timestep + "_" + batch_num]);
     return linear_backward_y(dZ, timestep, batch_num, cache);
 }
 
