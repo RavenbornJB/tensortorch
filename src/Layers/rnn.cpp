@@ -21,11 +21,12 @@ RNN::RNN(int input_size, int hidden_size, int output_size,
     this->hidden_size = hidden_size;
     this->output_size = output_size;
     this->return_sequences = return_sequences;
+    this->parameter_initialization = parameter_initialization;
 
     this->activation_a = activation_class_a;
     this->activation_y = activation_class_y;
-    this->description.push_back(activation_class_a->name);
-    this->description.push_back(activation_class_y->name);
+    this->description.push_back(activation_class_a->get_name());
+    this->description.push_back(activation_class_y->get_name());
 
     std::default_random_engine gen{static_cast<long unsigned int>(time(nullptr))};
     double stddev_aa, stddev_ax, stddev_ya;
@@ -66,7 +67,18 @@ RNN::RNN(int input_size, int hidden_size, int output_size,
     }
 
     initialized = false;
-    data_size = batch_sequence_length;
+}
+
+void RNN::save(const std::string& filename) {
+    std::ofstream file(filename, std::ios::app); // open for append2
+    file << description[0] << " " << input_size << " " << hidden_size << " " << output_size << " " <<
+    description[1] << " " << description[2] << " " << parameter_initialization << " " << return_sequences << "\n";
+
+    file << Waa << "\n";
+    file << Wax << "\n";
+    file << Wya << "\n";
+    file << ba << "\n";
+    file << by << "\n";
 }
 
 MatrixXd RNN::cell_forward(const MatrixXd &input, const std::string& timestep,
@@ -196,4 +208,12 @@ std::unordered_map<std::string, std::vector<int>> RNN::layer_shapes() {
             {"dba", {(int) ba.rows(), (int) ba.cols()}},
             {"dby", {(int) by.rows(), (int) by.cols()}}
     };
+}
+
+void RNN::set_parameters(const std::vector<MatrixXd> &params) {
+    Waa = params[0];
+    Wax = params[1];
+    Wya = params[2];
+    ba = params[3];
+    by = params[4];
 }

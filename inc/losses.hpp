@@ -15,7 +15,7 @@ namespace Losses { //TODO change inline
 
     class Loss {
     public:
-        std::string name;
+        virtual inline std::string get_name() { return "abstract"; }
         virtual inline MatrixXd loss(const MatrixXd &y_pred, const MatrixXd &y_true) { return y_pred; }
         virtual inline MatrixXd loss_back(const MatrixXd &y_pred, const MatrixXd &y_true) { return y_pred; }
     };
@@ -23,7 +23,7 @@ namespace Losses { //TODO change inline
 
     class BinaryCrossentropy: public Loss {
     public:
-        std::string name = "binary_crossentropy";
+        inline std::string get_name() override { return "binary_crossentropy"; }
         inline MatrixXd loss(const MatrixXd &y_pred, const MatrixXd &y_true) override {
             MatrixXd logprobs = y_true.array() * y_pred.array().log() + (1 - y_true.array()) * (1 - y_pred.array()).log();
 //            std::cout << y_pred << std::endl;
@@ -38,7 +38,7 @@ namespace Losses { //TODO change inline
 
     class CategoricalCrossentropy: public Loss {
     public:
-        std::string name = "categorical_crossentropy";
+        inline std::string get_name() override { return "categorical_crossentropy"; }
         inline MatrixXd loss(const MatrixXd &y_pred, const MatrixXd &y_true) override {
             MatrixXd logprobs = y_true.array() * y_pred.array().log();
             return -logprobs.colwise().sum();
@@ -50,7 +50,7 @@ namespace Losses { //TODO change inline
 
     class MSE: public Loss {
     public:
-        std::string name = "mean_squared_error";
+        inline std::string get_name() override { return "mean_squared_error"; }
         inline MatrixXd loss(const MatrixXd &y_pred, const MatrixXd &y_true) override {
             MatrixXd errors = (y_true.array()  - y_pred.array()).square();
             return errors.colwise().mean();

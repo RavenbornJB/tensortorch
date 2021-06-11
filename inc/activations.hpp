@@ -13,13 +13,13 @@ namespace Activations { //TODO change inline
 
     class Activation {
     public:
-        std::string name;
+        virtual inline std::string get_name() { return "abstract"; };
         virtual inline MatrixXd activate(const MatrixXd &input) { return MatrixXd(input); }
         virtual inline MatrixXd activate_back(const MatrixXd &dA, const MatrixXd &Z) { return MatrixXd(dA); }
     };
 
     class Linear: public Activation {
-        std::string name = "linear";
+        inline std::string get_name() override { return "linear"; };
         inline MatrixXd activate(const MatrixXd &input) override {
             return MatrixXd(input);
         }
@@ -29,7 +29,7 @@ namespace Activations { //TODO change inline
     };
 
     class Sigmoid: public Activation {
-        std::string name = "sigmoid";
+        inline std::string get_name() override { return "sigmoid"; };
         inline MatrixXd activate(const MatrixXd &input) override {
             return ((-input.array()).exp() + 1).inverse();
         }
@@ -41,7 +41,7 @@ namespace Activations { //TODO change inline
 
 
     class Softmax: public Activation {
-        std::string name = "softmax";
+        inline std::string get_name() override { return "softmax"; };
         inline MatrixXd activate(const MatrixXd &input) override {
             MatrixXd exp_input = input.array().exp();
             return exp_input / exp_input.sum();
@@ -52,7 +52,7 @@ namespace Activations { //TODO change inline
     };
 
     class Tanh: public Activation {
-        std::string name = "softmax";
+        inline std::string get_name() override { return "tanh"; };
         inline MatrixXd activate(const MatrixXd &input) override {
             return input.array().tanh();
         }
@@ -62,7 +62,7 @@ namespace Activations { //TODO change inline
     };
 
     class Relu: public Activation {
-        std::string name = "relu";
+        inline std::string get_name() override { return "relu"; };
         inline MatrixXd activate(const MatrixXd &input) override {
             return input.array().max(0);
         }

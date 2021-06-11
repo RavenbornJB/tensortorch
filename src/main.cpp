@@ -133,32 +133,37 @@ int main() {
 //    MatrixXd train_prediction = model.predict(X_train_pts);
 //    std::cout << "Accuracy on the train set: " << compare(train_prediction, Y_train_pts) * 100 << "%" << std::endl;
 
-    MatrixXd x(20, 4);
-    x.col(0) << 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0;
-    x.col(1) << 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-    x.col(2) << 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1;
-    x.col(3) << 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+//    MatrixXd x(20, 4);
+//    x.col(0) << 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0;
+//    x.col(1) << 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+//    x.col(2) << 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1;
+//    x.col(3) << 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
 
-    MatrixXd y_true(10, 1);
-    y_true << 0, 0, 1, 0, 0, 1, 0, 0, 0, 0;
+//    MatrixXd y_true(10, 1);
+//    y_true << 0, 0, 1, 0, 0, 1, 0, 0, 0, 0;
 //    MatrixXd y_true(20, 4);
 //    MatrixXd empty_token = MatrixXd::Zero(20, 1);
 //    y_true << x.block<20, 3>(0, 1), empty_token;
 
-    std::vector<Layers::Layer *> layers = {
-            new Layers::RNN(10, 16, 5,
-            new Activations::Tanh, new Activations::Softmax,
-            "he", false)
-    };
+//    std::vector<Layers::Layer *> layers = {
+//            new Layers::Dense(2, 5),
+//            new Layers::Dense(5, 3, new Activations::Relu),
+//            new Layers::Dense(3, 1, new Activations::Sigmoid, "xavier")
+//            new Layers::RNN(10, 16, 5,
+//            new Activations::Tanh, new Activations::Softmax,
+//            "he", false)
+//    };
 
-    Model model(layers, 0.01);
-    model.compile(new Losses::CategoricalCrossentropy,
-                  new Optimizers::RMSprop(1, 0.01, 0.999));
+//    Model model(layers, 0.01);
+//    model.compile(new Losses::CategoricalCrossentropy,
+//                  new Optimizers::RMSprop(1, 0.01, 0.999));
 
-    model.fit(x, y_true, 1000);
+//    model.fit(x, y_true, 10000);
 
-    model.save("rnn-test");
+//    model.save("normal-test");
+//    model.save("rnn-test");
+    Model model = Model::Load("normal-test");
 
-    auto res = model.predict(x.block(0, 0, 10, 4));
-    std::cout << prediction_matrix_to_vector(res, 0.5) << std::endl;
+//    auto res = model.predict(x.block(0, 0, 10, 4));
+//    std::cout << prediction_matrix_to_vector(res, 0.5) << std::endl;
 }

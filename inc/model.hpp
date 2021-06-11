@@ -6,6 +6,7 @@
 #define NEURALNET_LIB_MODEL_HPP
 
 #include <fstream>
+#include <iterator>
 
 #include "layer.hpp"
 #include "losses.hpp"
@@ -22,6 +23,10 @@ private:
     Optimizers::Optimizer* optimizer;
     bool compiled;
 
+    static Activations::Activation* make_activation(const std::string& activation_name);
+    static Losses::Loss* make_loss(const std::string& loss_name);
+    static Optimizers::Optimizer* make_optimizer(const std::string& optimizer_name, const std::vector<double>& params);
+
 public:
     //TODO constructor options
     explicit Model(std::vector<Layers::Layer*> &layers, double regularization_parameter=-1);
@@ -36,8 +41,10 @@ public:
     MatrixXd predict(const MatrixXd& X_test);
 
     void save(const std::string& filename);
+    static Model Load(const std::string& filename);
 
     std::vector<Layers::Layer*>& get_layers();
+    std::string summary();
 };
 
 #endif //NEURALNET_LIB_MODEL_HPP

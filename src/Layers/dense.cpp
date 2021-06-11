@@ -13,8 +13,12 @@ Dense::Dense(int from_size, int to_size, Activations::Activation* activation,
     this->b = Eigen::MatrixXd::Zero(to_size, 1);
     this->gradients = {"dW", "db"};
 
+    this->input_size = from_size;
+    this->output_size = to_size;
+    this->parameter_initialization = parameter_initialization;
+
     this->activation = activation;
-    this->description.push_back(activation->name);
+    this->description.push_back(activation->get_name());
 
     std::default_random_engine gen{static_cast<long unsigned int>(time(nullptr))};
     double stddev;
@@ -35,8 +39,14 @@ Dense::Dense(int from_size, int to_size, Activations::Activation* activation,
             this->W(i, j) = dist(gen);
         }
     }
+}
 
-    data_size = 1;
+void Dense::save(const std::string& filename) {
+    std::ofstream file(filename, std::ios::app); // open for append2
+    file << description[0] << " " << input_size << " " << output_size << " " << description[1] << " " <<
+    parameter_initialization << "\n";
+    file << W << "\n";
+    file << b << "\n";
 }
 
 MatrixXd Dense::linear(const MatrixXd &input) {
@@ -76,4 +86,9 @@ std::unordered_map<std::string, std::vector<int>> Dense::layer_shapes() {
             {"dW", {(int) W.rows(), (int) W.cols()}},
             {"db", {(int) b.rows(), (int) b.cols()}}
     };
+}
+
+void Dense::set_parameters(const std::vector<MatrixXd> &params) {
+    W = params[0];
+    b = params[1];
 }

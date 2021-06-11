@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <random>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <cmath>
 
@@ -23,25 +24,29 @@ namespace Layers {
         std::vector<std::string> description;
         std::vector<std::string> gradients;
 
-        int data_size;
+        virtual void save(const std::string& filename) {};
 
         virtual MatrixXd forward(const MatrixXd &inp, std::unordered_map<std::string, MatrixXd> &cache) { return inp; };
-
         virtual MatrixXd backward(const MatrixXd &inp, std::unordered_map<std::string, MatrixXd> &cache,
-                                  double regularization_parameter) { return inp; };
-
+        double regularization_parameter) { return inp; };
         virtual void update_parameters(std::unordered_map<std::string, MatrixXd> &cache) {};
 
         // layer_shapes uses "d" in front of keys like in gradients, because this is used in the optimizer for gradients
         virtual std::unordered_map<std::string, std::vector<int>> layer_shapes() {
             return *(new std::unordered_map<std::string, std::vector<int>>);
         };
+
+        virtual void set_parameters(const std::vector<MatrixXd>& params) {}
     };
 
     class Dense: public Layer {
     private:
         MatrixXd W;
         MatrixXd b;
+
+        int input_size;
+        int output_size;
+        std::string parameter_initialization;
 
         Activations::Activation* activation;
 
@@ -53,11 +58,17 @@ namespace Layers {
         Dense(int from_size, int to_size,
               Activations::Activation* activation=new Activations::Linear,
               const std::string &parameter_initialization="he");
+
+        void save(const std::string& filename) override;
+
         MatrixXd forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) override;
         MatrixXd backward(const MatrixXd& dA, std::unordered_map<std::string, MatrixXd>& cache,
                           double regularization_parameter) override;
         void update_parameters(std::unordered_map<std::string, MatrixXd>& cache) override;
+
         std::unordered_map<std::string, std::vector<int>> layer_shapes() override;
+
+        void set_parameters(const std::vector<MatrixXd>& params) override;
     };
 
     class RNN: public Layer {
@@ -72,6 +83,7 @@ namespace Layers {
         int hidden_size;
         int output_size;
         bool return_sequences;
+        std::string parameter_initialization;
 
         int batch_size;
         int batch_sequence_length;
@@ -103,12 +115,18 @@ namespace Layers {
             Activations::Activation *activation_class_a, Activations::Activation *activation_class_y,
             const std::string &parameter_initialization="he", bool return_sequences=true);
 
+        void save(const std::string& filename) override;
+
         MatrixXd forward(const MatrixXd& input, std::unordered_map<std::string, MatrixXd>& cache) override;
         MatrixXd backward(const MatrixXd& dA, std::unordered_map<std::string, MatrixXd>& cache,
                           double regularization_parameter) override;
         void update_parameters(std::unordered_map<std::string, MatrixXd>& cache) override;
+
         std::unordered_map<std::string, std::vector<int>> layer_shapes() override;
+
+        void set_parameters(const std::vector<MatrixXd>& params) override;
     };
 
 }
+
 #endif //NEURALNET_LIB_LAYER_HPP

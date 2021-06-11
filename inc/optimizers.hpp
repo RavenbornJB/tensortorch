@@ -15,6 +15,8 @@ namespace Optimizers {
 
     class Optimizer {
     public:
+        virtual inline std::string get_name() { return "abstract"; }
+        virtual inline std::vector<double> get_params() {return {}; }
         virtual void optimize(Model* model, const MatrixXd& X_train, const MatrixXd& Y_train, int num_epochs) {};
     };
 
@@ -23,6 +25,8 @@ namespace Optimizers {
         double learning_rate;
     public:
         explicit BGD(double _learning_rate);
+        inline std::string get_name() override { return "bgd"; }
+        inline std::vector<double> get_params() override {return {learning_rate}; }
         void optimize(Model* model, const MatrixXd& X_train, const MatrixXd& Y_train, int num_epochs) override;
         void update_parameters(std::vector<Layers::Layer *> &layers,
                                std::vector<std::unordered_map<std::string, MatrixXd>> &cache);
@@ -36,6 +40,8 @@ namespace Optimizers {
         int batch_size;
     public:
         SGD(int _batch_size, double learning_rate, double momentum);
+        inline std::string get_name() override { return "sgd"; }
+        inline std::vector<double> get_params() override {return {(double) batch_size, learning_rate, momentum}; }
         void optimize(Model *model, const MatrixXd &X_train, const MatrixXd &Y_train, int num_epochs) override;
         void update_parameters(
                 std::vector<Layers::Layer *> &layers,
@@ -51,6 +57,8 @@ namespace Optimizers {
         double epsilon;
     public:
         RMSprop(int _batch_size,  double _learning_rate, double _beta,  double epsilon=std::pow(10, -7));
+        inline std::string get_name() override { return "rmsprop"; }
+        inline std::vector<double> get_params() override {return {(double) batch_size, learning_rate, beta}; }
         void optimize(Model *model, const MatrixXd &X_train, const MatrixXd &Y_train, int num_epochs) override;
         void update_parameters(std::vector<Layers::Layer *> &layers,
                 std::vector<std::unordered_map<std::string, MatrixXd>> &cache,
@@ -66,6 +74,8 @@ namespace Optimizers {
         double epsilon;
     public:
         Adam(int _batch_size,  double _learning_rate, double _beta1, double _beta2, double epsilon=std::pow(10, -7));
+        inline std::string get_name() override { return "adam"; }
+        inline std::vector<double> get_params() override {return {(double) batch_size, learning_rate, beta1, beta2}; }
         void optimize(Model *model, const MatrixXd &X_train, const MatrixXd &Y_train, int num_epochs) override;
         void update_parameters(std::vector<Layers::Layer *> &layers,
                                std::vector<std::unordered_map<std::string, MatrixXd>> &cache,
@@ -81,6 +91,8 @@ namespace Optimizers {
         int batch_size;
     public:
         Parallel(int _batch_size, double learning_rate);
+        inline std::string get_name() override { return "parallel"; }
+        inline std::vector<double> get_params() override {return {(double) batch_size, learning_rate}; }
         void optimize(Model *model, const MatrixXd &X_train, const MatrixXd &Y_train, int num_epochs) override;
         void update_parameters(std::vector<Layers::Layer *> &layers,
                                std::vector<std::unordered_map<std::string, MatrixXd>> &cache);
