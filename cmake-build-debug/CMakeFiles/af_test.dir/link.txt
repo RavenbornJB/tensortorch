@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/af_test.dir/src/main.cpp.o CMakeFiles/af_test.dir/src/dense.cpp.o CMakeFiles/af_test.dir/src/model.cpp.o CMakeFiles/af_test.dir/src/BGD.cpp.o -o af_test  /usr/lib/libafopencl.so.3.8.0 
