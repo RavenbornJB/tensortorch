@@ -1,7 +1,5 @@
 # Neural Network library for C++
 
----
-
 ## Authors
 
 - [Yarema Mishchenko](https://github.com/RavenbornJB)
